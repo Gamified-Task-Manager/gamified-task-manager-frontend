@@ -28,10 +28,6 @@ jobs:
       - name: Run build
         run: npm run build
 
-      # Optional step if you add tests later:
-      # - name: Run tests
-      #   run: npm run test
-
   deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest

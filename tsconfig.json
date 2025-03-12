@@ -10,7 +10,9 @@
     "resolveJsonModule": true,                    // Allow importing .json files
     "forceConsistentCasingInFileNames": true,      // Enforce consistent casing in imports
     "noFallthroughCasesInSwitch": true,            // Ensure switch cases are handled properly
-    "isolatedModules": true,                       // Ensure all files are treated as modules
+    "isolatedModules": true, 
+    "outDir": "./dist",                             // Output to dist folder only
+    "noEmit": true,                                 // Ensure all files are treated as modules
     "baseUrl": "./src",                            // Base URL for imports
     "paths": {
       "@/*": ["./*"]                               // Allow absolute imports like @/components
@@ -20,11 +22,3 @@
   "exclude": ["node_modules", "dist"]              // Ignore these directories
 }
 
-
-// {
-//   "files": [],
-//   "references": [
-//     { "path": "./tsconfig.app.json" },
-//     { "path": "./tsconfig.node.json" }
-//   ]
-// }

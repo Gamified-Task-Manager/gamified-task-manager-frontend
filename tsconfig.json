@@ -1,7 +1,30 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "target": "esnext",                           // Latest ECMAScript features
+    "module": "esnext",                           // Use modern JavaScript modules
+    "jsx": "react-jsx",                           // Enable React JSX support
+    "strict": true,                               // Enable all strict type-checking options
+    "skipLibCheck": true,                         // Skip type checking of declaration files
+    "esModuleInterop": true,                      // Ensure compatibility with CommonJS and ES modules
+    "moduleResolution": "node",                   // Resolve modules like Node.js
+    "resolveJsonModule": true,                    // Allow importing .json files
+    "forceConsistentCasingInFileNames": true,      // Enforce consistent casing in imports
+    "noFallthroughCasesInSwitch": true,            // Ensure switch cases are handled properly
+    "isolatedModules": true,                       // Ensure all files are treated as modules
+    "baseUrl": "./src",                            // Base URL for imports
+    "paths": {
+      "@/*": ["./*"]                               // Allow absolute imports like @/components
+    }
+  },
+  "include": ["src"],                              // Include all files in the src directory
+  "exclude": ["node_modules", "dist"]              // Ignore these directories
 }
+
+
+// {
+//   "files": [],
+//   "references": [
+//     { "path": "./tsconfig.app.json" },
+//     { "path": "./tsconfig.node.json" }
+//   ]
+// }

@@ -1,22 +1,19 @@
 import apiClient from './apiClient';
 
-interface LoginData {
-  email: string;
-  password: string;
+interface AuthResponse {
+  token: string;
+  user: {
+    username: string;
+    email: string;
+  };
 }
 
-interface SignupData {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export const login = async (data: LoginData) => {
-  const response = await apiClient.post('/session', data);
-  return response.data;
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
+  const { data } = await apiClient.post('/session', { email, password });
+  return data;
 };
 
-export const signup = async (data: SignupData) => {
-  const response = await apiClient.post('/users', data);
-  return response.data;
+export const signup = async (username: string, email: string, password: string): Promise<AuthResponse> => {
+  const { data } = await apiClient.post('/users', { username, email, password });
+  return data;
 };

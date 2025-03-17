@@ -1,24 +1,29 @@
-//Store and provide user authentication state
-
 import { createContext, useState, useContext, useEffect } from 'react';
+
+interface User {
+  username: string;
+  email: string;
+}
 
 interface AuthContextType {
   token: string | null;
-  user: { username: string; email: string } | null;
-  login: (token: string, user: { username: string; email: string }) => void;
+  user: User | null;
+  login: (token: string, user: User) => void; 
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [user, setUser] = useState<{ username: string; email: string } | null>(
-    token ? JSON.parse(localStorage.getItem('user') || '{}') : null
+  const [token, setToken] = useState<string | null>(
+    sessionStorage.getItem('token')
+  );
+  const [user, setUser] = useState<User | null>(
+    token ? JSON.parse(sessionStorage.getItem('user') || '{}') : null
   );
 
   useEffect(() => {
-    if (token) {
+    if (token && user) {
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('user', JSON.stringify(user));
     } else {
@@ -26,7 +31,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       sessionStorage.removeItem('user');
     }
   }, [token, user]);
-  const login = (token: string, user: { username: string; email: string }) => {
+
+  const login = (token: string, user: User) => {
     setToken(token);
     setUser(user);
   };

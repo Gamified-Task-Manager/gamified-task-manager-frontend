@@ -1,28 +1,62 @@
 import { useState } from 'react';
-import { login } from '../../services/authService';
-import { useAuth } from '../../contexts/AuthContext';
+import { useLogin } from '../../hooks/useAuth';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
-const LoginModal = () => {
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const LoginModal = ({ isOpen, onClose }: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login: handleLogin } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { mutateAsync, isPending } = useLogin();
+
+  const handleSubmit = async () => {
+    setError(null);
     try {
-      const userData = await login({ email, password });
-      handleLogin(userData);
+      await mutateAsync({ email, password });
+      onClose(); 
     } catch (err) {
-      console.error('Login failed', err);
+      setError('Invalid email or password');
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <form onSubmit={handleSubmit}>
-      <input value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input value={password} type="password" onChange={(e) => setPassword(e.target.value)} />
-      <button type="submit">Login</button>
-    </form>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Log In</h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <Input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          disabled={isPending}
+        />
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="mt-2"
+          disabled={isPending}
+        />
+        <div className="flex justify-end gap-2 mt-4">
+          <Button onClick={onClose} variant="outline" disabled={isPending}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={isPending}>
+            {isPending ? 'Logging in...' : 'Log In'}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 

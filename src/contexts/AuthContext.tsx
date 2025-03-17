@@ -1,31 +1,51 @@
-import { createContext, useState, useContext, ReactNode } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
+
+interface User {
+  username: string;
+  email: string;
+}
 
 interface AuthContextType {
-  user: any;
-  login: (userData: any) => void;
+  token: string | null;
+  user: User | null;
+  login: (token: string, user: User) => void; 
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [token, setToken] = useState<string | null>(
+    sessionStorage.getItem('token')
+  );
+  const [user, setUser] = useState<User | null>(
+    token ? JSON.parse(sessionStorage.getItem('user') || '{}') : null
+  );
 
-  const login = (userData: any) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  useEffect(() => {
+    if (token && user) {
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('user', JSON.stringify(user));
+    } else {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+    }
+  }, [token, user]);
+
+  const login = (token: string, user: User) => {
+    setToken(token);
+    setUser(user);
   };
 
   const logout = () => {
+    setToken(null);
     setUser(null);
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

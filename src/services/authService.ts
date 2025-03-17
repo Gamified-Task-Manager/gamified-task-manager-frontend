@@ -1,3 +1,5 @@
+//handle authentication by providing reusable functions to manage the user login and signup
+
 import apiClient from './apiClient';
 
 interface AuthResponse {

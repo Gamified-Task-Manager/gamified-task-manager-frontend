@@ -13,7 +13,7 @@ interface TaskColumnProps {
 const TaskColumn = ({ title, tasks, column, onMoveTask, isMobile }: TaskColumnProps) => {
   const { setNodeRef } = useDroppable({
     id: column, 
-    data: { column }, 
+    data: { column },
   });
 
   return (
@@ -22,6 +22,7 @@ const TaskColumn = ({ title, tasks, column, onMoveTask, isMobile }: TaskColumnPr
       className="bg-neutral-deep p-4 rounded-lg shadow-md min-h-[200px]"
     >
       <h2 className="text-xl font-serif text-gold mb-2">{title}</h2>
+
       {tasks.map((task) => (
         <TaskItem
           key={task.id}

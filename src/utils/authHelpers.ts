@@ -40,7 +40,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
 export const isTokenExpired = (token: string) => {
   try {
     const decoded = jwtDecode<TokenPayload>(token);
-    return decoded.exp * 1000 < Date.now(); // Convert to milliseconds
+    return decoded.exp * 1000 < Date.now(); 
   } catch (e) {
     return true;
   }

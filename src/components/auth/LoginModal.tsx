@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import { useLogin } from '../../hooks/useAuth';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { useState } from "react";
+import { useLogin } from "../../hooks/useAuth";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess: () => void;
 }
 
-const LoginModal = ({ isOpen, onClose }: Props) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const { mutateAsync, isPending } = useLogin();
@@ -19,24 +20,38 @@ const LoginModal = ({ isOpen, onClose }: Props) => {
     setError(null);
     try {
       await mutateAsync({ email, password });
-      onClose(); 
+      onLoginSuccess();
     } catch (err) {
-      setError('Invalid email or password');
+      setError("Invalid email or password");
     }
   };
 
+  // Close modal by clicking outside
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Log In</h2>
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      onClick={onClose}
+    >
+      {/* Prevent close when clicking inside the modal */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-neutral-light p-8 rounded-2xl shadow-xl w-full max-w-md"
+      >
+        {/* Header */}
+        <h2 className="text-2xl font-serif text-gold mb-4">Log In</h2>
+
+        {/* Error Message */}
         {error && <p className="text-red-500 mb-4">{error}</p>}
+
+        {/* Inputs */}
         <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          className="w-full px-4 py-3 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
           disabled={isPending}
         />
         <Input
@@ -44,15 +59,18 @@ const LoginModal = ({ isOpen, onClose }: Props) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="mt-2"
+          className="w-full px-4 py-3 mt-4 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
           disabled={isPending}
         />
-        <div className="flex justify-end gap-2 mt-4">
-          <Button onClick={onClose} variant="outline" disabled={isPending}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isPending}>
-            {isPending ? 'Logging in...' : 'Log In'}
+
+        {/* Buttons */}
+        <div className="flex justify-end mt-6">
+          <Button
+            onClick={handleSubmit}
+            className="bg-gold text-neutral-deep px-6 py-2 rounded-md hover:bg-neutral-grey transition"
+            disabled={isPending}
+          >
+            {isPending ? "Logging in..." : "Log In"}
           </Button>
         </div>
       </div>

@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* global styles */
+/* Global Styles */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
+  @apply font-sans bg-neutral-light text-neutral-dark;
   margin: 0;
   padding: 0;
+}
+
+/* Headers */
+h1, h2, h3, h4 {
+  @apply font-serif text-neutral-dark;
 }

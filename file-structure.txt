@@ -1,0 +1,70 @@
+src
+├── App.css
+├── App.tsx
+├── assets
+│   └── react.svg
+├── components
+│   ├── auth
+│   │   ├── LoginModal.tsx
+│   │   └── SignupModal.tsx
+│   ├── games
+│   │   ├── Game.tsx
+│   │   └── GameModal.tsx
+│   ├── rewards
+│   │   ├── RewardItem.tsx
+│   │   ├── RewardList.tsx
+│   │   └── RewardPurchase.tsx
+│   ├── shared
+│   │   ├── Navbar.tsx
+│   │   └── ProtectedRoute.tsx
+│   ├── tasks
+│   │   ├── TaskColumn.tsx
+│   │   ├── TaskForm.tsx
+│   │   ├── TaskItem.tsx
+│   │   └── TaskList.tsx
+│   ├── ui
+│   │   ├── button.tsx
+│   │   └── input.tsx
+│   └── user
+│       ├── AvatarSelector.tsx
+│       ├── ThemeSelector.tsx
+│       └── UserProfile.tsx
+├── contexts
+│   ├── AuthContext.tsx
+│   └── ThemeContext.tsx
+├── hooks
+│   ├── useAuth.ts
+│   ├── useAvatars.ts
+│   ├── useMediaQuery.ts
+│   ├── useRewards.ts
+│   ├── useTasks.ts
+│   └── useThemes.ts
+├── index.css
+├── lib
+│   └── utils.ts
+├── main.tsx
+├── pages
+│   ├── Home.tsx
+│   ├── Profile.tsx
+│   ├── Rewards.tsx
+│   └── Tasks.tsx
+├── services
+│   ├── apiClient.ts
+│   ├── authService.ts
+│   ├── avatarService.ts
+│   ├── rewardService.ts
+│   ├── taskService.ts
+│   └── themeService.ts
+├── styles
+│   ├── animations.ts
+│   ├── globals.css
+│   └── themeStyles.ts
+├── types
+│   └── interfaces.ts
+├── utils
+│   ├── authHelpers.ts
+│   ├── constants.ts
+│   └── helpers.ts
+└── vite-env.d.ts
+
+18 directories, 50 files

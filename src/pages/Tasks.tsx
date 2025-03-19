@@ -7,34 +7,24 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import TaskColumn from '../components/tasks/TaskColumn';
-import { useState } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Task } from '../types/interfaces';
+import { useTasks } from '../hooks/useTasks';
+import TaskForm from '../components/tasks/TaskForm'; // ✅ new import
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-
-  const [tasks, setTasks] = useState<Record<Task['status'], Task[]>>({
-    pending: [
-      { id: 1, name: 'Task 1', status: 'pending', priority: 'low' },
-      { id: 2, name: 'Task 2', status: 'pending', priority: 'medium' },
-    ],
-    inProgress: [
-      { id: 3, name: 'Task 3', status: 'inProgress', priority: 'high' },
-      { id: 4, name: 'Task 4', status: 'inProgress', priority: 'medium' },
-    ],
-    completed: [
-      { id: 5, name: 'Task 5', status: 'completed', priority: 'low' },
-    ],
-  });
+  const { tasks, addTask, updateTaskStatus, loading, error } = useTasks(); // ✅ using your hook
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
+
+  const tasksByStatus = {
+    pending: tasks.filter((task) => task.status === 'pending'),
+    inProgress: tasks.filter((task) => task.status === 'inProgress'),
+    completed: tasks.filter((task) => task.status === 'completed'),
+  };
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -54,35 +44,30 @@ const Tasks = () => {
     fromColumn: Task['status'],
     toColumn: Task['status']
   ) => {
-    if (fromColumn !== toColumn) {
-      setTasks((prev) => {
-        const newTasks = { ...prev };
-        const taskIndex = newTasks[fromColumn].findIndex(
-          (task) => task.id === Number(taskId)
-        );
+    updateTaskStatus(Number(taskId), toColumn);
+  };
 
-        if (taskIndex !== -1) {
-          const [task] = newTasks[fromColumn].splice(taskIndex, 1);
-          task.status = toColumn;
-          newTasks[toColumn].push(task);
-        }
-
-        return newTasks;
-      });
-    }
+  const handleAddTask = async (taskData: Task) => {
+    await addTask(taskData); // ✅ calls your API and updates state
   };
 
   return (
     <div className="p-6 md:p-12 bg-neutral-light min-h-screen">
-      {/*Title Section */}
+      {/* Title Section */}
       <div className="mb-8">
-        <h1 className="text-4xl font-serif text-gold text-center">
-          Your Tasks
-        </h1>
+        <h1 className="text-4xl font-serif text-gold text-center">Your Tasks</h1>
         <p className="text-lg font-sans text-neutral-grey text-center mt-2">
           Keep track of your progress and get things done!
         </p>
       </div>
+
+      {/* ✅ Task Form Section (New!) */}
+      <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
+        <TaskForm onSubmit={handleAddTask} />
+      </div>
+
+      {loading && <p className="text-center">Loading tasks...</p>}
+      {error && <p className="text-center text-red-500">{error}</p>}
 
       <DndContext
         sensors={sensors}
@@ -90,32 +75,28 @@ const Tasks = () => {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={[
-            ...tasks.pending.map((task) => task.id!.toString()),
-            ...tasks.inProgress.map((task) => task.id!.toString()),
-            ...tasks.completed.map((task) => task.id!.toString()),
-          ]}
+          items={tasks.map((task) => task.id!.toString())}
           strategy={verticalListSortingStrategy}
         >
           {/* Task Columns */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <TaskColumn
               title="To Do"
-              tasks={tasks.pending}
+              tasks={tasksByStatus.pending}
               column="pending"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />
             <TaskColumn
               title="In Progress"
-              tasks={tasks.inProgress}
+              tasks={tasksByStatus.inProgress}
               column="inProgress"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />
             <TaskColumn
               title="Completed"
-              tasks={tasks.completed}
+              tasks={tasksByStatus.completed}
               column="completed"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}

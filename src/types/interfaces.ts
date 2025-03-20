@@ -3,7 +3,7 @@ export interface Task {
   name: string;
   description?: string;
   completed?: boolean;
-  status: 'pending' | 'inProgress' | 'completed';
+  status: 'pending' | 'in_progress' | 'completed';
   priority?: 'low' | 'medium' | 'high';
   points_awarded?: number;
   dueDate?: string;

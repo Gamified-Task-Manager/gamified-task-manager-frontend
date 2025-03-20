@@ -22,7 +22,7 @@ const Tasks = () => {
 
   const tasksByStatus = {
     pending: tasks.filter((task) => task.status === 'pending'),
-    inProgress: tasks.filter((task) => task.status === 'inProgress'),
+    in_progress: tasks.filter((task) => task.status === 'in_progress'),
     completed: tasks.filter((task) => task.status === 'completed'),
   };
 
@@ -82,8 +82,8 @@ const Tasks = () => {
             />
             <TaskColumn
               title="In Progress"
-              tasks={tasksByStatus.inProgress}
-              column="inProgress"
+              tasks={tasksByStatus.in_progress}
+              column="in_progress"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />

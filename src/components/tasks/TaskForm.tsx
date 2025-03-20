@@ -12,7 +12,7 @@ const DEFAULT_TASK: Task = {
   name: '',
   description: '',
   status: 'pending',
-  priority: undefined,
+  priority: 'low',
   dueDate: '',
   notes: '',
   attachmentUrl: '',
@@ -21,6 +21,7 @@ const DEFAULT_TASK: Task = {
 const TaskForm = ({ onSubmit, initialData }: Props) => {
   const [task, setTask] = useState<Task>(initialData || DEFAULT_TASK);
   const [error, setError] = useState<string | null>(null);
+  const [attachedFileName, setAttachedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
@@ -32,6 +33,7 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setTask((prev) => ({ ...prev, attachmentUrl: reader.result as string }));
+        setAttachedFileName(files[0].name); // Show attached file name
       };
       reader.readAsDataURL(files[0]);
     } else {
@@ -48,20 +50,23 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
     setError(null);
     onSubmit(task);
     setTask(DEFAULT_TASK);
+    setAttachedFileName(null);
   };
 
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <form onSubmit={handleSubmit} className="mb-4">
+      {/* Task Name */}
       <Input
         name="name"
         value={task.name}
         onChange={handleChange}
-        placeholder="Task Name"
+        placeholder="Task Name *"
       />
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
+      {/* Description */}
       <Input
         name="description"
         value={task.description || ''}
@@ -70,6 +75,7 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
         className="mt-2"
       />
 
+      {/* Due Date */}
       <div className="mt-2">
         <label className="text-sm text-neutral-grey">Due Date:</label>
         <Input
@@ -82,6 +88,7 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
         />
       </div>
 
+      {/* Notes */}
       <Input
         name="notes"
         value={task.notes || ''}
@@ -90,7 +97,7 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
         className="mt-2"
       />
 
-      {/* Custom Attach File Button */}
+      {/* Attach File */}
       <div className="mt-2">
         <input
           type="file"
@@ -102,29 +109,38 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
         <Button
           type="button"
           variant="outline"
-          className="w-full"
+          className="w-full text-sm py-1 px-3 border border-neutral-grey"
           onClick={() => fileInputRef.current?.click()}
         >
           Attach File
         </Button>
+        {attachedFileName && (
+          <p className="text-sm text-neutral-grey mt-1">
+            Attached: {attachedFileName}
+          </p>
+        )}
       </div>
 
-      {/* Priority Dropdown with matching font size */}
-      <select
-        name="priority"
-        value={task.priority}
-        onChange={handleChange}
-        className="mt-2 border border-neutral-grey px-3 py-2 text-sm w-full rounded-md"
-      >
-        <option value="" disabled>
-          Select Priority
-        </option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
+      {/* Priority Dropdown */}
+      <div className="mt-2">
+        <label className="text-sm text-neutral-grey">Select Priority:</label>
+        <select
+          name="priority"
+          value={task.priority}
+          onChange={handleChange}
+          className="mt-1 border border-neutral-grey px-3 py-2 text-sm w-full rounded-md"
+        >
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
 
-      <Button type="submit" className="mt-4 w-full">
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        className="mt-4 w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-500 transition"
+      >
         {initialData ? 'Update Task' : 'Add Task'}
       </Button>
     </form>

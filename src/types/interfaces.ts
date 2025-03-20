@@ -4,7 +4,7 @@ export interface Task {
   description?: string;
   completed?: boolean;
   status: 'pending' | 'inProgress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
+  priority?: 'low' | 'medium' | 'high';
   points_awarded?: number;
   dueDate?: string;
   notes?: string;

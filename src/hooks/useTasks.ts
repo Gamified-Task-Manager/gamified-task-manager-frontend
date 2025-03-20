@@ -8,35 +8,37 @@ export const useTasks = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleError = (message: string, err: unknown) => {
+    console.error(message, err);
+    setError(message);
+  };
+
   useEffect(() => {
     const fetchTasks = async () => {
       setLoading(true);
       try {
         const response = await apiClient.get('/tasks');
-        console.log('Fetched tasks:', response.data); // EMPORARY LOG
         const fetchedTasks = response.data.data.map((task: any) => ({
           id: Number(task.id),
           ...task.attributes,
         }));
         setTasks(fetchedTasks);
       } catch (err) {
-        console.error('Error fetching tasks:', err); // LOG ERROR CLEARLY
-        setError('Failed to load tasks');
+        handleError('Failed to load tasks', err);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchTasks();
   }, []);
-  
 
   const addTask = async (taskData: Partial<Task>) => {
     try {
       const newTask = await createTask(taskData);
       setTasks((prevTasks) => [...prevTasks, newTask]);
     } catch (err) {
-      setError('Failed to create task');
+      handleError('Failed to create task', err);
     }
   };
 

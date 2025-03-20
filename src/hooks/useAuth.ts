@@ -11,11 +11,9 @@ export const useLogin = () => {
         const response = await login(email, password);
         
         // Token extraction 
-        const token = response.token || response.data.attributes.token;
         const user = response.data.attributes;
-
-        // add token to user object
-        const userWithToken = { ...user, token }; 
+        const token = user.token || response.token;
+        const userWithToken = { ...user, token };
 
         // save to local storage
         localStorage.setItem('user', JSON.stringify(userWithToken)); 

@@ -10,11 +10,11 @@ import TaskColumn from '../components/tasks/TaskColumn';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Task } from '../types/interfaces';
 import { useTasks } from '../hooks/useTasks';
-import TaskForm from '../components/tasks/TaskForm'; // ✅ new import
+import TaskForm from '../components/tasks/TaskForm'; 
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { tasks, addTask, updateTaskStatus, loading, error } = useTasks(); // ✅ using your hook
+  const { tasks, addTask, updateTaskStatus, loading, error } = useTasks(); 
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -54,7 +54,7 @@ const Tasks = () => {
         </p>
       </div>
 
-      {/* ✅ Task Form Section (New!) */}
+      {/* Task Form Section*/}
       <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
         <TaskForm onSubmit={handleAddTask} />
       </div>

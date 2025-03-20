@@ -26,18 +26,11 @@ const Tasks = () => {
     completed: tasks.filter((task) => task.status === 'completed'),
   };
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    const fromColumn = active.data.current?.column as Task['status'];
-    const toColumn = over.data.current?.column as Task['status'];
-
-    if (fromColumn !== toColumn) {
-      handleMoveTask(active.id as string, fromColumn, toColumn);
+  const handleDragEnd = ({ active, over }: any) => {
+    if (over && active.data.current.column !== over.data.current.column) {
+      handleMoveTask(active.id, active.data.current.column, over.data.current.column);
     }
-  };
+  };  
 
   const handleMoveTask = (
     taskId: string,
@@ -48,7 +41,7 @@ const Tasks = () => {
   };
 
   const handleAddTask = async (taskData: Task) => {
-    await addTask(taskData); // ✅ calls your API and updates state
+    await addTask(taskData); // 
   };
 
   return (

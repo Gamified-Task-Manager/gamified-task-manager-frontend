@@ -13,14 +13,14 @@ export const useTasks = () => {
       setLoading(true);
       try {
         const response = await apiClient.get('/tasks');
-        console.log('Fetched tasks:', response.data); // ✅ TEMPORARY LOG
+        console.log('Fetched tasks:', response.data); // EMPORARY LOG
         const fetchedTasks = response.data.data.map((task: any) => ({
           id: Number(task.id),
           ...task.attributes,
         }));
         setTasks(fetchedTasks);
       } catch (err) {
-        console.error('Error fetching tasks:', err); // ✅ LOG ERROR CLEARLY
+        console.error('Error fetching tasks:', err); // LOG ERROR CLEARLY
         setError('Failed to load tasks');
       } finally {
         setLoading(false);

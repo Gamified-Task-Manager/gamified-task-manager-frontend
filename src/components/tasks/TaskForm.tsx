@@ -8,42 +8,31 @@ interface Props {
   initialData?: Task;
 }
 
+const DEFAULT_TASK: Task = {
+  name: '',
+  description: '',
+  status: 'pending',
+  priority: 'low',
+  dueDate: '',
+  notes: '',
+  attachmentUrl: '',
+};
+
 const TaskForm = ({ onSubmit, initialData }: Props) => {
-  const [task, setTask] = useState<Task>(
-    initialData || {
-      name: '',
-      description: '',
-      status: 'pending',
-      priority: 'low',
-      dueDate: '',
-      notes: '',
-      attachmentUrl: '',
-    }
-  );
+  const [task, setTask] = useState<Task>(initialData || DEFAULT_TASK);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setTask((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setTask((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!task.name) return;
     onSubmit(task);
-    setTask({
-      name: '',
-      description: '',
-      status: 'pending',
-      priority: 'low',
-      dueDate: '',
-      notes: '',
-      attachmentUrl: '',
-    });
+    setTask(DEFAULT_TASK); 
   };
 
   return (
@@ -110,4 +99,3 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
 };
 
 export default TaskForm;
-

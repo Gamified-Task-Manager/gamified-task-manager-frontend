@@ -40,8 +40,6 @@ export const useSignup = () => {
     mutationFn: async ({ username, email, password }: { username: string; email: string; password: string }) => {
       try {
         const response = await signup(username, email, password);
-
-        // Same explicit fix as login
         const token = response.token;
         const user = response.data.attributes;
         const userWithToken = { ...user, token };

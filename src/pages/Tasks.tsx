@@ -14,7 +14,7 @@ import TaskForm from '../components/tasks/TaskForm';
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { tasks, addTask, updateTaskStatus, loading, error } = useTasks(); 
+  const { tasks, addTask, updateTaskStatus, loading, errors } = useTasks(); 
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -32,16 +32,15 @@ const Tasks = () => {
     }
   };  
 
-  const handleMoveTask = (
-    taskId: string,
-    fromColumn: Task['status'],
-    toColumn: Task['status']
-  ) => {
+  console.log('Tasks by status:', tasksByStatus); 
+  
+  const handleMoveTask = (taskId: string, fromColumn: Task['status'], toColumn: Task['status']) => {
+    console.log(`Moving task ${taskId} from ${fromColumn} to ${toColumn}`);
     updateTaskStatus(Number(taskId), toColumn);
   };
 
   const handleAddTask = async (taskData: Task) => {
-    await addTask(taskData); // 
+    await addTask(taskData); 
   };
 
   return (
@@ -54,13 +53,12 @@ const Tasks = () => {
         </p>
       </div>
 
-      {/* Task Form Section*/}
+      {/* Task Form Section */}
       <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
-        <TaskForm onSubmit={handleAddTask} />
+        <TaskForm onSubmit={handleAddTask} errors={errors} />
       </div>
 
       {loading && <p className="text-center">Loading tasks...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
 
       <DndContext
         sensors={sensors}

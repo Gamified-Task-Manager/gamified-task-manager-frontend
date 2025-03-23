@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Task } from '../../types/interfaces';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -6,6 +6,7 @@ import { Input } from '../ui/input';
 interface Props {
   onSubmit: (task: Task) => void;
   initialData?: Task;
+  errors?: string[]; // ✅ Accept multiple errors from backend
 }
 
 const DEFAULT_TASK: Task = {
@@ -13,16 +14,26 @@ const DEFAULT_TASK: Task = {
   description: '',
   status: 'pending',
   priority: 'low',
-  dueDate: '',
+  due_date: '',
   notes: '',
-  attachmentUrl: '',
+  attachment_url: '',
 };
 
-const TaskForm = ({ onSubmit, initialData }: Props) => {
+const TaskForm = ({ onSubmit, initialData, errors = [] }: Props) => {
   const [task, setTask] = useState<Task>(initialData || DEFAULT_TASK);
-  const [error, setError] = useState<string | null>(null);
   const [attachedFileName, setAttachedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+
+    if (errors.length > 0) {
+      const timer = setTimeout(() => {
+        console.log('Clearing errors...');
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [errors]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -32,8 +43,8 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
     if (files && files[0]) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setTask((prev) => ({ ...prev, attachmentUrl: reader.result as string }));
-        setAttachedFileName(files[0].name); // Show attached file name
+        setTask((prev) => ({ ...prev, attachment_url: reader.result as string }));
+        setAttachedFileName(files[0].name);
       };
       reader.readAsDataURL(files[0]);
     } else {
@@ -41,22 +52,44 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log('Submitting task:', task);
+
     if (!task.name.trim()) {
-      setError('Task name is required.');
+      console.error('Task name is required');
       return;
     }
-    setError(null);
-    onSubmit(task);
-    setTask(DEFAULT_TASK);
-    setAttachedFileName(null);
+
+    try {
+      console.log('Calling onSubmit function...');
+      await onSubmit(task);
+      console.log('Task submitted successfully');
+
+      setTask(DEFAULT_TASK);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      setAttachedFileName(null);
+    } catch (err) {
+      console.error('Task submission failed:', err);
+    }
   };
 
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <form onSubmit={handleSubmit} className="mb-4">
+      {errors.length > 0 && (
+        <div className="text-red-500 text-sm mb-2">
+          {errors.map((error, index) => (
+            <p key={index}>⚠️ {error}</p>
+          ))}
+        </div>
+      )}
+
       {/* Task Name */}
       <Input
         name="name"
@@ -64,7 +97,6 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
         onChange={handleChange}
         placeholder="Task Name *"
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
       {/* Description */}
       <Input
@@ -80,8 +112,8 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
         <label className="text-sm text-neutral-grey">Due Date:</label>
         <Input
           type="date"
-          name="dueDate"
-          value={task.dueDate || ''}
+          name="due_date"
+          value={task.due_date || ''}
           onChange={handleChange}
           min={today}
           className="mt-1"
@@ -102,7 +134,7 @@ const TaskForm = ({ onSubmit, initialData }: Props) => {
         <input
           type="file"
           ref={fileInputRef}
-          name="attachmentUrl"
+          name="attachment_url"
           onChange={handleChange}
           hidden
         />

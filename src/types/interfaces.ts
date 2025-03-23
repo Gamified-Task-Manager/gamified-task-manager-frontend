@@ -6,9 +6,9 @@ export interface Task {
   status: 'pending' | 'in_progress' | 'completed';
   priority?: 'low' | 'medium' | 'high';
   points_awarded?: number;
-  dueDate?: string;
+  due_date?: string;
   notes?: string;
-  attachmentUrl?: string;
+  attachment_url?: string;
   created_at?: string;
   updated_at?: string;
   user_id?: number;

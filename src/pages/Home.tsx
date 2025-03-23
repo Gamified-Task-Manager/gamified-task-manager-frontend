@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
+import { useAuth } from "../contexts/AuthContext";
 import LoginModal from "../components/auth/LoginModal"; 
 import SignupModal from "../components/auth/SignupModal";
 
@@ -8,12 +9,16 @@ const Home = () => {
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const navigate = useNavigate(); // Updated to useNavigate
 
+  const { setIsAuthenticated } = useAuth();
+
   const handleLoginSuccess = () => {
+    setIsAuthenticated(true); 
     setIsLoginOpen(false);
     navigate("/tasks"); // Redirect to tasks after login
   };
 
   const handleSignupSuccess = () => {
+    setIsAuthenticated(true);
     setIsSignupOpen(false);
     navigate("/tasks"); // Redirect to tasks after signup
   };

@@ -13,29 +13,37 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppContent />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
   );
 }
 
-function AppContent() {
-  const { user } = useAuth();
+function AppRoutes() {
+  const { isAuthenticated } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  console.log("App - isAuthenticated:", isAuthenticated);
+
   return (
-    <BrowserRouter>
-      {user && (
-        <Navbar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+    <>
+      {/* ✅ Show Navbar ONLY when authenticated */}
+      {isAuthenticated && (
+        <Navbar
+          isOpen={isSidebarOpen}
+          onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
       )}
       <div
         className={`transition-all duration-300 ${
-          user && isSidebarOpen ? 'ml-64' : 'ml-0'
+          isAuthenticated && isSidebarOpen ? 'ml-64' : 'ml-0'
         }`}
       >
         <Routes>
           <Route path="/" element={<Home />} />
-          {user ? (
+          {isAuthenticated ? (
             <Route path="/tasks" element={<Tasks />} />
           ) : (
             <Route path="/tasks" element={<Navigate to="/" />} />
@@ -43,7 +51,7 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
-    </BrowserRouter>
+    </>
   );
 }
 

@@ -149,16 +149,16 @@ const Tasks = () => {
 
         {/* Drag Overlay */}
         <DragOverlay>
-          {activeTask ? (
-            <div className="opacity-90">
-              <TaskItem
-                task={activeTask}
-                onMoveTask={() => {}}
-                isMobile={isMobile}
-              />
-            </div>
-          ) : null}
-        </DragOverlay>
+  {activeTask ? (
+    <div className="opacity-80 transition-opacity duration-300 ease-in-out">
+      <TaskItem
+        task={activeTask}
+        onMoveTask={() => {}}
+        isMobile={isMobile}
+      />
+    </div>
+  ) : null}
+</DragOverlay>
       </DndContext>
     </div>
   );

@@ -9,7 +9,9 @@ const TrashZone = () => {
     <div
       ref={setNodeRef}
       className={`mt-10 p-4 text-center rounded-lg transition-all duration-300 ${
-        isOver ? 'bg-red-200 text-red-800 scale-105 shadow-lg' : 'bg-red-100 text-red-600'
+        isOver
+          ? 'bg-red-300 text-red-900 scale-105 shadow-lg'
+          : 'bg-red-100 text-red-600'
       }`}
     >
       🗑️ Drag here to delete task

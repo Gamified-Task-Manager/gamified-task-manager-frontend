@@ -16,6 +16,19 @@ const TaskItem = ({ task, onMoveTask, isMobile }: Props) => {
     },
   });
 
+  const getTaskColor = (status: Task['status']) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-50';
+      case 'in_progress':
+        return 'bg-blue-50';
+      case 'completed':
+        return 'bg-green-50';
+      default:
+        return 'bg-neutral-light';
+    }
+  };  
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -23,12 +36,13 @@ const TaskItem = ({ task, onMoveTask, isMobile }: Props) => {
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="bg-neutral-light text-neutral-dark p-4 rounded-md mb-2 shadow-md"
-    >
+  ref={setNodeRef}
+  style={style}
+  {...attributes}
+  {...listeners}
+  className={`transition-all duration-300 ease-in-out opacity-100 hover:scale-[1.01] p-4 rounded-md mb-2 shadow-md ${getTaskColor(task.status)}`}
+>
+
       <div className="font-semibold">{task.name}</div>
 
       {task.notes && (

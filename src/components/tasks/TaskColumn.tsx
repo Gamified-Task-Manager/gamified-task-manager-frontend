@@ -11,17 +11,33 @@ interface TaskColumnProps {
   onClearCompleted?: () => void;
 }
 
+const columnColor = (column: Task['status']) => {
+  switch (column) {
+    case 'pending':
+      return 'bg-yellow-100';
+    case 'in_progress':
+      return 'bg-blue-100';
+    case 'completed':
+      return 'bg-green-100';
+    default:
+      return 'bg-neutral-deep';
+  }
+};
+
 const TaskColumn = ({ title, tasks, column, onMoveTask, isMobile, onClearCompleted }: TaskColumnProps) => {
-  const { setNodeRef } = useDroppable({
-    id: column, 
+  const { setNodeRef, isOver } = useDroppable({
+    id: column,
     data: { column },
-  });
+  });  
 
   return (
     <div
-      ref={setNodeRef}
-      className="bg-neutral-deep p-4 rounded-lg shadow-md min-h-[200px]"
-    >
+    ref={setNodeRef}
+    className={`p-4 rounded-lg shadow-md min-h-[200px] transition-all duration-300 ${
+      isOver ? 'ring-2 ring-gold/50 scale-[1.01]' : ''
+    } ${columnColor(column)}`}
+  >
+  
       <h2 className="text-xl font-serif text-gold mb-2">{title}</h2>
 
       {tasks.map((task) => (

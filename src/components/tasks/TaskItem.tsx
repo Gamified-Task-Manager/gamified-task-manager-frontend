@@ -51,7 +51,7 @@ const TaskItem = ({ task, onMoveTask, isMobile }: Props) => {
           className="mt-2 border border-neutral-grey p-1 w-full rounded-md"
         >
           <option value="pending">Pending</option>
-          <option value="inProgress">In Progress</option>
+          <option value="in_progress">In Progress</option>
           <option value="completed">Completed</option>
         </select>
       )}

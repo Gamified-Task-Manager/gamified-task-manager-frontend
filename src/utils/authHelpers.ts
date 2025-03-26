@@ -1,21 +1,17 @@
 //can also include decodeToken and isTokenExpired functions here. 
 
-import { useAuth } from '../contexts/AuthContext';
 import { jwtDecode } from 'jwt-decode';
 
 interface TokenPayload {
   exp: number;
 }
 
-export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-  const { token, logout } = useAuth();
-
+export const fetchWithAuth = async (url: string, token: string, options: RequestInit = {}) => {
   if (!token) {
     throw new Error('User is not authenticated');
   }
 
   if (isTokenExpired(token)) {
-    logout();
     throw new Error('Session expired. Please log in again.');
   }
 
@@ -29,7 +25,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
 
   if (!response.ok) {
     if (response.status === 401) {
-      logout();
+      throw new Error('Unauthorized');
     }
     throw new Error(`Error: ${response.status}`);
   }

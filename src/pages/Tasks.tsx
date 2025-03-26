@@ -7,124 +7,114 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import TaskColumn from '../components/tasks/TaskColumn';
-import { useState } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Task } from '../types/interfaces';
+import { useTasks } from '../hooks/useTasks';
+import TaskForm from '../components/tasks/TaskForm'; 
+import TrashZone from '../components/tasks/TrashZone';
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-
-  const [tasks, setTasks] = useState<Record<Task['status'], Task[]>>({
-    pending: [
-      { id: 1, name: 'Task 1', status: 'pending', priority: 'low' },
-      { id: 2, name: 'Task 2', status: 'pending', priority: 'medium' },
-    ],
-    inProgress: [
-      { id: 3, name: 'Task 3', status: 'inProgress', priority: 'high' },
-      { id: 4, name: 'Task 4', status: 'inProgress', priority: 'medium' },
-    ],
-    completed: [
-      { id: 5, name: 'Task 5', status: 'completed', priority: 'low' },
-    ],
-  });
+  const { tasks, addTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks(); 
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    const fromColumn = active.data.current?.column as Task['status'];
-    const toColumn = over.data.current?.column as Task['status'];
-
-    if (fromColumn !== toColumn) {
-      handleMoveTask(active.id as string, fromColumn, toColumn);
-    }
+  const tasksByStatus = {
+    pending: tasks.filter((task) => task.status === 'pending'),
+    in_progress: tasks.filter((task) => task.status === 'in_progress'),
+    completed: tasks.filter((task) => task.status === 'completed'),
   };
 
-  const handleMoveTask = (
-    taskId: string,
-    fromColumn: Task['status'],
-    toColumn: Task['status']
-  ) => {
-    if (fromColumn !== toColumn) {
-      setTasks((prev) => {
-        const newTasks = { ...prev };
-        const taskIndex = newTasks[fromColumn].findIndex(
-          (task) => task.id === Number(taskId)
-        );
-
-        if (taskIndex !== -1) {
-          const [task] = newTasks[fromColumn].splice(taskIndex, 1);
-          task.status = toColumn;
-          newTasks[toColumn].push(task);
-        }
-
-        return newTasks;
-      });
+  const handleDragEnd = ({ active, over }: any) => {
+    if (!over) return;
+  
+    if (over.id === 'trash-zone') {
+      removeTask(Number(active.id));
+      return;
     }
+  
+    if (active.data.current.column !== over.data.current.column) {
+      handleMoveTask(active.id, active.data.current.column, over.data.current.column);
+    }
+  };  
+
+  console.log('Tasks by status:', tasksByStatus); 
+  
+  const handleMoveTask = (taskId: string, fromColumn: Task['status'], toColumn: Task['status']) => {
+    console.log(`Moving task ${taskId} from ${fromColumn} to ${toColumn}`);
+    updateTaskStatus(Number(taskId), toColumn);
+  };
+
+  const handleAddTask = async (taskData: Task) => {
+    await addTask(taskData); 
   };
 
   return (
     <div className="p-6 md:p-12 bg-neutral-light min-h-screen">
-      {/*Title Section */}
+      {/* Title Section */}
       <div className="mb-8">
-        <h1 className="text-4xl font-serif text-gold text-center">
-          Your Tasks
-        </h1>
+        <h1 className="text-4xl font-serif text-gold text-center">Your Tasks</h1>
         <p className="text-lg font-sans text-neutral-grey text-center mt-2">
           Keep track of your progress and get things done!
         </p>
       </div>
-
+  
+      {/* Task Form Section */}
+      <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
+        <TaskForm onSubmit={handleAddTask} errors={errors} />
+      </div>
+  
+      {loading && <p className="text-center">Loading tasks...</p>}
+  
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={[
-            ...tasks.pending.map((task) => task.id!.toString()),
-            ...tasks.inProgress.map((task) => task.id!.toString()),
-            ...tasks.completed.map((task) => task.id!.toString()),
-          ]}
+          items={tasks.map((task) => task.id!.toString())}
           strategy={verticalListSortingStrategy}
         >
           {/* Task Columns */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <TaskColumn
               title="To Do"
-              tasks={tasks.pending}
+              tasks={tasksByStatus.pending}
               column="pending"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />
             <TaskColumn
               title="In Progress"
-              tasks={tasks.inProgress}
-              column="inProgress"
+              tasks={tasksByStatus.in_progress}
+              column="in_progress"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />
             <TaskColumn
               title="Completed"
-              tasks={tasks.completed}
+              tasks={tasksByStatus.completed}
               column="completed"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />
           </div>
+  
+          {/* Trash Zone */}
+          <div className="flex justify-center mt-10">
+            <TrashZone />
+          </div>
+          {success && (
+          <p className="text-green-600 text-center mb-4 font-medium transition-opacity duration-300">
+            {success}
+           </p>
+          )}
         </SortableContext>
       </DndContext>
     </div>
-  );
+  );  
 };
 
 export default Tasks;

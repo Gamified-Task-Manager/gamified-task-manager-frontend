@@ -1,13 +1,15 @@
 export interface Task {
-  id?: number; 
+  id?: number;
   name: string;
   description?: string;
-  status: 'pending' | 'inProgress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  dueDate?: string;
+  completed?: boolean;
+  status: 'pending' | 'in_progress' | 'completed';
+  priority?: 'low' | 'medium' | 'high';
+  points_awarded?: number;
+  due_date?: string;
   notes?: string;
-  attachmentUrl?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  attachment_url?: string;
+  created_at?: string;
+  updated_at?: string;
+  user_id?: number;
 }
-

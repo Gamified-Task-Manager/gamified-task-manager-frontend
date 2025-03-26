@@ -8,19 +8,22 @@ import {
   DragStartEvent,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useState } from 'react';
 import TaskColumn from '../components/tasks/TaskColumn';
-import { useMediaQuery } from '../hooks/useMediaQuery';
-import { Task } from '../types/interfaces';
-import { useTasks } from '../hooks/useTasks';
-import TaskForm from '../components/tasks/TaskForm'; 
+import TaskForm from '../components/tasks/TaskForm';
 import TrashZone from '../components/tasks/TrashZone';
 import TaskItem from '../components/tasks/TaskItem';
-import { useState } from 'react';
+import { useTasks } from '../hooks/useTasks';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import useTaskSounds from '../hooks/useTaskSounds';
+import { Task } from '../types/interfaces';
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { tasks, addTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks(); 
+  const { tasks, addTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+
+  const { playPopSound, playAddSound, playSlotSound, playSwooshSound } = useTaskSounds();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -39,32 +42,42 @@ const Tasks = () => {
   };
 
   const handleDragEnd = ({ active, over }: any) => {
-    setActiveTask(null); // Clear the overlay
+    setActiveTask(null);
 
     if (!over) return;
-  
+
     if (over.id === 'trash-zone') {
+      playSwooshSound(); // 💨 swoosh for delete
       removeTask(Number(active.id));
       return;
     }
-  
+
     if (active.data.current.column !== over.data.current.column) {
-      handleMoveTask(active.id, active.data.current.column, over.data.current.column);
+      const from = active.data.current.column;
+      const to = over.data.current.column;
+
+      if (to === 'completed') {
+        playSlotSound(); // 🎰 fun sound for completed
+      } else {
+        playPopSound(); // 🎯 regular move
+      }
+
+      setTimeout(() => {
+        updateTaskStatus(Number(active.id), to);
+      }, 100); // optional delay for smoother transition
     }
   };
 
-  const handleMoveTask = (taskId: string, fromColumn: Task['status'], toColumn: Task['status']) => {
-    console.log(`Moving task ${taskId} from ${fromColumn} to ${toColumn}`);
-    setTimeout(() => {
-      updateTaskStatus(Number(taskId), toColumn);
-    }, 100); // Optional delay for smoother transition
-  };
-
   const handleAddTask = async (taskData: Task) => {
-    await addTask(taskData); 
+    await addTask(taskData);
+    playAddSound(); // 🔊 success sound
   };
 
   const handleClearCompleted = () => {
+    if (tasksByStatus.completed.length > 0) {
+      playSwooshSound(); // 💨 swoosh for bulk delete
+    }
+
     tasksByStatus.completed.forEach((task) => {
       removeTask(task.id!);
     });
@@ -80,7 +93,7 @@ const Tasks = () => {
         </p>
       </div>
 
-      {/* Task Form Section */}
+      {/* Task Form */}
       <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
         <TaskForm onSubmit={handleAddTask} errors={errors} />
       </div>
@@ -90,53 +103,32 @@ const Tasks = () => {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
-        onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
-        {/* Task Columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <SortableContext
-            items={tasksByStatus.pending.map((task) => task.id!.toString())}
-            strategy={verticalListSortingStrategy}
-          >
-            <TaskColumn
-              title="To Do"
-              tasks={tasksByStatus.pending}
-              column="pending"
-              onMoveTask={handleMoveTask}
-              isMobile={isMobile}
-            />
-          </SortableContext>
-
-          <SortableContext
-            items={tasksByStatus.in_progress.map((task) => task.id!.toString())}
-            strategy={verticalListSortingStrategy}
-          >
-            <TaskColumn
-              title="In Progress"
-              tasks={tasksByStatus.in_progress}
-              column="in_progress"
-              onMoveTask={handleMoveTask}
-              isMobile={isMobile}
-            />
-          </SortableContext>
-
-          <SortableContext
-            items={tasksByStatus.completed.map((task) => task.id!.toString())}
-            strategy={verticalListSortingStrategy}
-          >
-            <TaskColumn
-              title="Completed"
-              tasks={tasksByStatus.completed}
-              column="completed"
-              onMoveTask={handleMoveTask}
-              isMobile={isMobile}
-              onClearCompleted={handleClearCompleted}
-            />
-          </SortableContext>
+          {(['pending', 'in_progress', 'completed'] as Task['status'][]).map((column) => (
+            <SortableContext
+              key={column}
+              items={tasksByStatus[column].map((task) => task.id!.toString())}
+              strategy={verticalListSortingStrategy}
+            >
+              <TaskColumn
+                title={
+                  column === 'pending' ? 'To Do' :
+                  column === 'in_progress' ? 'In Progress' :
+                  'Completed'
+                }
+                tasks={tasksByStatus[column]}
+                column={column}
+                onMoveTask={(id, from, to) => updateTaskStatus(Number(id), to)}
+                isMobile={isMobile}
+                onClearCompleted={column === 'completed' ? handleClearCompleted : undefined}
+              />
+            </SortableContext>
+          ))}
         </div>
 
-        {/* Trash Zone */}
         <div className="flex justify-center mt-10">
           <TrashZone />
         </div>
@@ -147,18 +139,13 @@ const Tasks = () => {
           </p>
         )}
 
-        {/* Drag Overlay */}
         <DragOverlay>
-  {activeTask ? (
-    <div className="opacity-80 transition-opacity duration-300 ease-in-out">
-      <TaskItem
-        task={activeTask}
-        onMoveTask={() => {}}
-        isMobile={isMobile}
-      />
-    </div>
-  ) : null}
-</DragOverlay>
+          {activeTask && (
+            <div className="opacity-80 transition-opacity duration-300 ease-in-out">
+              <TaskItem task={activeTask} onMoveTask={() => {}} isMobile={isMobile} />
+            </div>
+          )}
+        </DragOverlay>
       </DndContext>
     </div>
   );

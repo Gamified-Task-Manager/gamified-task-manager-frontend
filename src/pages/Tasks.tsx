@@ -11,10 +11,11 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Task } from '../types/interfaces';
 import { useTasks } from '../hooks/useTasks';
 import TaskForm from '../components/tasks/TaskForm'; 
+import TrashZone from '../components/tasks/TrashZone';
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { tasks, addTask, updateTaskStatus, loading, errors } = useTasks(); 
+  const { tasks, addTask, updateTaskStatus, removeTask, loading, errors } = useTasks(); 
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -27,7 +28,14 @@ const Tasks = () => {
   };
 
   const handleDragEnd = ({ active, over }: any) => {
-    if (over && active.data.current.column !== over.data.current.column) {
+    if (!over) return;
+  
+    if (over.id === 'trash-zone') {
+      removeTask(Number(active.id));
+      return;
+    }
+  
+    if (active.data.current.column !== over.data.current.column) {
       handleMoveTask(active.id, active.data.current.column, over.data.current.column);
     }
   };  
@@ -52,14 +60,14 @@ const Tasks = () => {
           Keep track of your progress and get things done!
         </p>
       </div>
-
+  
       {/* Task Form Section */}
       <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
         <TaskForm onSubmit={handleAddTask} errors={errors} />
       </div>
-
+  
       {loading && <p className="text-center">Loading tasks...</p>}
-
+  
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -93,10 +101,15 @@ const Tasks = () => {
               isMobile={isMobile}
             />
           </div>
+  
+          {/* Trash Zone */}
+          <div className="flex justify-center mt-10">
+            <TrashZone />
+          </div>
         </SortableContext>
       </DndContext>
     </div>
-  );
+  );  
 };
 
 export default Tasks;

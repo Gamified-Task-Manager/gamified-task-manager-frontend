@@ -8,9 +8,10 @@ interface TaskColumnProps {
   column: Task['status'];
   onMoveTask: (taskId: string, fromColumn: Task['status'], toColumn: Task['status']) => void;
   isMobile: boolean;
+  onClearCompleted?: () => void;
 }
 
-const TaskColumn = ({ title, tasks, column, onMoveTask, isMobile }: TaskColumnProps) => {
+const TaskColumn = ({ title, tasks, column, onMoveTask, isMobile, onClearCompleted }: TaskColumnProps) => {
   const { setNodeRef } = useDroppable({
     id: column, 
     data: { column },
@@ -31,6 +32,17 @@ const TaskColumn = ({ title, tasks, column, onMoveTask, isMobile }: TaskColumnPr
           isMobile={isMobile}
         />
       ))}
+      {column === 'completed' && onClearCompleted && tasks.length > 0 && (
+        <button onClick={() => {
+        const confirmed = window.confirm('Are you sure you want to delete all completed tasks?');
+          if (confirmed) onClearCompleted();
+        }}
+      className="mt-4 text-sm text-red-600 hover:underline"
+    >
+    Clear Completed
+  </button>
+)}
+
     </div>
   );
 };

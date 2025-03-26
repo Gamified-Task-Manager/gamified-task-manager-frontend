@@ -51,6 +51,12 @@ const Tasks = () => {
     await addTask(taskData); 
   };
 
+  const handleClearCompleted = () => {
+    tasksByStatus.completed.forEach((task) => {
+      removeTask(task.id!);
+    });
+  };
+  
   return (
     <div className="p-6 md:p-12 bg-neutral-light min-h-screen">
       {/* Title Section */}
@@ -73,12 +79,12 @@ const Tasks = () => {
         collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext
-          items={tasks.map((task) => task.id!.toString())}
-          strategy={verticalListSortingStrategy}
-        >
-          {/* Task Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Task Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <SortableContext
+            items={tasksByStatus.pending.map((task) => task.id!.toString())}
+            strategy={verticalListSortingStrategy}
+          >
             <TaskColumn
               title="To Do"
               tasks={tasksByStatus.pending}
@@ -86,6 +92,12 @@ const Tasks = () => {
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />
+          </SortableContext>
+  
+          <SortableContext
+            items={tasksByStatus.in_progress.map((task) => task.id!.toString())}
+            strategy={verticalListSortingStrategy}
+          >
             <TaskColumn
               title="In Progress"
               tasks={tasksByStatus.in_progress}
@@ -93,28 +105,37 @@ const Tasks = () => {
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
             />
+          </SortableContext>
+  
+          <SortableContext
+            items={tasksByStatus.completed.map((task) => task.id!.toString())}
+            strategy={verticalListSortingStrategy}
+          >
             <TaskColumn
               title="Completed"
               tasks={tasksByStatus.completed}
               column="completed"
               onMoveTask={handleMoveTask}
               isMobile={isMobile}
+              onClearCompleted={handleClearCompleted}
             />
-          </div>
+          </SortableContext>
+        </div>
   
-          {/* Trash Zone */}
-          <div className="flex justify-center mt-10">
-            <TrashZone />
-          </div>
-          {success && (
+        {/* Trash Zone */}
+        <div className="flex justify-center mt-10">
+          <TrashZone />
+        </div>
+  
+        {success && (
           <p className="text-green-600 text-center mb-4 font-medium transition-opacity duration-300">
             {success}
-           </p>
-          )}
-        </SortableContext>
+          </p>
+        )}
       </DndContext>
     </div>
-  );  
+  );
+  
 };
 
 export default Tasks;

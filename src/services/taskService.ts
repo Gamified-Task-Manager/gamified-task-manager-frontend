@@ -63,11 +63,14 @@ export const updateTaskStatus = async (taskId: number, status: Task['status']): 
 };
 
 // Delete Task
-export const deleteTask = async (taskId: number): Promise<void> => {
+export const deleteTask = async (taskId: number): Promise<string> => {
   console.log(`Deleting task ${taskId}`);
-  await apiClient.delete(`/tasks/${taskId}`);
-  console.log(`Task ${taskId} deleted`);
+  const response = await apiClient.delete(`/tasks/${taskId}`);
+  const message = response.data?.message || 'Task deleted successfully';
+  console.log(`Task ${taskId} deleted:`, message);
+  return message;
 };
+
 
 // Fetch All Tasks (for loading state)
 export const fetchTasks = async (): Promise<Task[]> => {

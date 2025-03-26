@@ -7,6 +7,7 @@ export const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleError = (err: any) => {
     console.error('Backend Error:', err);
@@ -42,6 +43,16 @@ export const useTasks = () => {
     fetchTasks();
   }, []);
 
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+      }, 1000); // 👈 1 second
+  
+      return () => clearTimeout(timer);
+    }
+  }, [success]);  
+
   // ✅ Create Task 
   const addTask = async (taskData: Partial<Task>) => {
     setErrors([]);
@@ -69,9 +80,13 @@ export const useTasks = () => {
   //  Delete Task
   const removeTask = async (taskId: number) => {
     setErrors([]);
+    setSuccess(null);
     try {
-      await deleteTask(taskId);
+      const message = await deleteTask(taskId); // we'll return a message from deleteTask
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+
+      console.log(message); // ✅ log it
+      setSuccess(message);  // ✅ show it
     } catch (err) {
       handleError(err);
     }
@@ -92,5 +107,5 @@ export const useTasks = () => {
     }
   };
 
-  return { tasks, addTask, editTask, removeTask, updateTaskStatus, loading, errors };
+  return { tasks, addTask, editTask, removeTask, updateTaskStatus, loading, errors, success };
 };

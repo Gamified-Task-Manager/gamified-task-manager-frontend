@@ -15,7 +15,7 @@ import TrashZone from '../components/tasks/TrashZone';
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { tasks, addTask, updateTaskStatus, removeTask, loading, errors } = useTasks(); 
+  const { tasks, addTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks(); 
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -106,6 +106,11 @@ const Tasks = () => {
           <div className="flex justify-center mt-10">
             <TrashZone />
           </div>
+          {success && (
+          <p className="text-green-600 text-center mb-4 font-medium transition-opacity duration-300">
+            {success}
+           </p>
+          )}
         </SortableContext>
       </DndContext>
     </div>

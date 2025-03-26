@@ -15,7 +15,7 @@ import TrashZone from '../components/tasks/TrashZone';
 import TaskItem from '../components/tasks/TaskItem';
 import { useTasks } from '../hooks/useTasks';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import useTaskSounds from '../hooks/useTaskSounds';
+import useTaskSounds from '@/hooks/useTaskSounds'; 
 import { Task } from '../types/interfaces';
 
 const Tasks = () => {

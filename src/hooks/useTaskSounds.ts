@@ -1,3 +1,5 @@
+// src/hooks/useTaskSounds.ts
+
 const useTaskSounds = () => {
   const playSound = (path: string, volume = 0.5) => {
     const audio = new Audio(path);
@@ -10,9 +12,9 @@ const useTaskSounds = () => {
   return {
     playPopSound: () => playSound('/sounds/pop.wav', 0.3),
     playAddSound: () => playSound('/sounds/pop.wav', 0.5),
-    playSwooshSound: () => playSound('/sounds/swoosh-low.wav', 0.5),
+    playSwooshSound: () => playSound('/sounds/swoosh-low.mp3', 0.5),
     playSlotSound: () => playSound('/sounds/coin.mp3', 0.6),
   };
 };
 
-export default useTaskSounds; // ✅ default export
+export default useTaskSounds;

@@ -24,12 +24,12 @@ export const createTask = async (task: Partial<Task>): Promise<Task> => {
   } catch (error: any) {
     console.error('Error creating task:', error); // ✅ Confirm any backend or request error
 
-    // ✅ Extract all error messages from the backend response
+    //Extract all error messages from the backend response
     if (error.response && error.response.data?.errors) {
       const backendErrors = error.response.data.errors.map((e: any) => e.title);
       console.error('Backend Errors:', backendErrors);
 
-      // ✅ Throw all error messages as a single array (or string)
+      // Throw all error messages as a single array (or string)
       throw new Error(backendErrors.join('\n'));
     }
 

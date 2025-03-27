@@ -6,7 +6,7 @@ import { Input } from '../ui/input';
 interface Props {
   onSubmit: (task: Task) => void;
   initialData?: Task;
-  errors?: string[]; // ✅ Accept multiple errors from backend
+  errors?: string[]; 
 }
 
 const DEFAULT_TASK: Task = {
@@ -24,6 +24,16 @@ const TaskForm = ({ onSubmit, initialData, errors = [] }: Props) => {
   const [attachedFileName, setAttachedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (initialData) {
+      setTask(initialData);
+      if (initialData.attachment_url) {
+        const fakeName = initialData.attachment_url.split('/').pop() || 'Attachment';
+        setAttachedFileName(fakeName);
+      }
+    }
+  }, [initialData]);
+  
   useEffect(() => {
 
     if (errors.length > 0) {

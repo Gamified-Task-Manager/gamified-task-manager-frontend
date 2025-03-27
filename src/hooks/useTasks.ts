@@ -27,7 +27,6 @@ export const useTasks = () => {
       setLoading(true);
       try {
         const response = await apiClient.get('/tasks');
-        console.log('Fetched tasks:', response.data);
         const fetchedTasks = response.data.data.map((task: any) => ({
           id: Number(task.id),
           ...task.attributes,
@@ -39,9 +38,14 @@ export const useTasks = () => {
         setLoading(false);
       }
     };
-
-    fetchTasks();
+  
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+  
+    if (user?.token) {
+      fetchTasks(); 
+    }
   }, []);
+  
 
   useEffect(() => {
     if (success) {

@@ -123,7 +123,7 @@ const TaskForm = ({ onSubmit, initialData, errors = [] }: Props) => {
         <Input
           type="date"
           name="due_date"
-          value={task.due_date || ''}
+          value={task.due_date ? task.due_date.split('T')[0] : ''}
           onChange={handleChange}
           min={today}
           className="mt-1"

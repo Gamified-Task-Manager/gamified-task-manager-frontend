@@ -22,7 +22,7 @@ export const createTask = async (task: Partial<Task>): Promise<Task> => {
     console.log('Created task:', createdTask); // Confirm formatted task
     return createdTask;
   } catch (error: any) {
-    console.error('Error creating task:', error); // ✅ Confirm any backend or request error
+    console.error('Error creating task:', error); // Confirm any backend or request error
 
     //Extract all error messages from the backend response
     if (error.response && error.response.data?.errors) {

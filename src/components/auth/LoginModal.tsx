@@ -59,6 +59,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          autoComplete="email"
           className="w-full px-4 py-3 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
           disabled={isPending}
         />
@@ -67,6 +68,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
+          autoComplete="current-password"
           className="w-full px-4 py-3 mt-4 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
           disabled={isPending}
         />

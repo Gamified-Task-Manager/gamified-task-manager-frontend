@@ -5,7 +5,8 @@ import Tasks from './pages/Tasks';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/shared/Navbar';
 import './index.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const queryClient = new QueryClient();
 
@@ -24,8 +25,15 @@ function App() {
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
 
   console.log("App - isAuthenticated:", isAuthenticated);
+
+  useEffect(() => {
+    if (location.pathname === '/tasks') {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   return (
     <>

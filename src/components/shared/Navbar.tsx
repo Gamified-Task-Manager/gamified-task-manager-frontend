@@ -2,6 +2,7 @@
 
 import { Button } from "../ui/button";
 import { useAuth } from "../../contexts/AuthContext";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   isOpen: boolean;
@@ -10,6 +11,12 @@ interface Props {
 
 const Navbar = ({ isOpen, onToggle }: Props) => {
   const { user, logout } = useAuth();
+  const location = useLocation();
+
+  // Hide Navbar if user is on the home page
+  if (location.pathname === "/") {
+    return null;
+  }
 
   return (
     <>

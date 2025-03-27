@@ -45,12 +45,21 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
         {/* Error Message */}
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
+        {/* Form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+
         {/* Inputs */}
         <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          autoComplete="email"
           className="w-full px-4 py-3 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
           disabled={isPending}
         />
@@ -59,6 +68,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
+          autoComplete="current-password"
           className="w-full px-4 py-3 mt-4 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
           disabled={isPending}
         />
@@ -73,6 +83,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
             {isPending ? "Logging in..." : "Log In"}
           </Button>
         </div>
+        </form>
       </div>
     </div>
   );

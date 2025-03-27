@@ -48,7 +48,7 @@ export const useSignup = () => {
 
         return userWithToken;
       } catch (error: any) {
-        console.error('Signup error:', error.response || error.message);
+        console.error('Signup error:', error.response?.data || error.message);
         throw error;
       }
     },

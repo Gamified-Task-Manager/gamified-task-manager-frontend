@@ -42,44 +42,52 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }: Props) => {
       >
         {/* Header */}
         <h2 className="text-2xl font-serif text-gold mb-4">Sign Up</h2>
-
+  
         {/* Error Message */}
         {error && <p className="text-red-500 mb-4">{error}</p>}
-
-        {/* Inputs */}
-        <Input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          className="w-full px-4 py-3 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
-        />
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full px-4 py-3 mt-4 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
-        />
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full px-4 py-3 mt-4 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
-        />
-
-        {/* Buttons */}
-        <div className="flex justify-end mt-6">
-          <Button
-            onClick={handleSubmit}
-            className="bg-gold text-neutral-deep px-6 py-2 rounded-md hover:bg-neutral-grey transition"
-          >
-            Sign Up
-          </Button>
-        </div>
+  
+        {/* Form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          {/* Inputs */}
+          <Input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+            className="w-full px-4 py-3 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
+          />
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full px-4 py-3 mt-4 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
+          />
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="w-full px-4 py-3 mt-4 border border-neutral-grey rounded-md focus:outline-none focus:border-gold"
+          />
+  
+          {/* Buttons */}
+          <div className="flex justify-end mt-6">
+            <Button
+              type="submit"
+              className="bg-gold text-neutral-deep px-6 py-2 rounded-md hover:bg-neutral-grey transition"
+            >
+              Sign Up
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
-  );
+  );  
 };
 
 export default SignupModal;

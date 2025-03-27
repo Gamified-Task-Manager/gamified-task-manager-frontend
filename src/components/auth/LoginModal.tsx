@@ -45,6 +45,14 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
         {/* Error Message */}
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
+        {/* Form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+
         {/* Inputs */}
         <Input
           type="email"
@@ -73,6 +81,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
             {isPending ? "Logging in..." : "Log In"}
           </Button>
         </div>
+        </form>
       </div>
     </div>
   );

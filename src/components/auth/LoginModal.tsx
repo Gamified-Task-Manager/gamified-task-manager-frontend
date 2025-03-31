@@ -29,11 +29,15 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }: Props) => {
   // Close modal by clicking outside
   if (!isOpen) return null;
 
+  console.log("LoginModal mounted");
+
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-      onClick={onClose}
-    >
+  data-testid="login-modal"
+  className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+  onClick={onClose}
+>
+
       {/* Prevent close when clicking inside the modal */}
       <div
         onClick={(e) => e.stopPropagation()}

@@ -38,19 +38,29 @@ export const useSignup = () => {
     mutationFn: async ({ username, email, password }: { username: string; email: string; password: string }) => {
       try {
         const response = await signup(username, email, password);
-        const token = response.token;
-        const user = response.data.attributes;
-        const userWithToken = { ...user, token };
 
+        const user = response.data.attributes;
+        const token = user.token;
+
+        const userWithToken = { ...user, token };
         localStorage.setItem('user', JSON.stringify(userWithToken));
 
         setLogin(token, userWithToken);
 
         return userWithToken;
       } catch (error: any) {
-        console.error('Signup error:', error.response?.data || error.message);
+        // 🌟 Improved debugging
+        if (error.response?.data?.errors) {
+          const backendErrors = error.response.data.errors.map((e: any) => e.title);
+          console.error('Signup failed with validation errors:', backendErrors);
+        } else {
+          console.error('Signup failed with error:', error.message);
+        }
+
         throw error;
       }
     },
   });
 };
+
+

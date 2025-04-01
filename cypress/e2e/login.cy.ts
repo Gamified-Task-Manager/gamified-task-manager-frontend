@@ -7,7 +7,7 @@ describe('Auth Flow', () => {
   });
 
   it('logs in a user successfully and fetches tasks', () => {
-    // ✅ Intercept the GET /tasks to prevent 401 error after redirect
+    //Intercept the GET /tasks to prevent 401 error after redirect
     cy.intercept('GET', '**/tasks', {
       statusCode: 200,
       body: [
@@ -16,7 +16,7 @@ describe('Auth Flow', () => {
       ]
     }).as('getTasks');
 
-    // ✅ Intercept the POST /session login request
+    // Intercept the POST /session login request
     cy.intercept('POST', '**/session', {
       statusCode: 200,
       body: {
@@ -31,31 +31,31 @@ describe('Auth Flow', () => {
       }
     }).as('loginRequest');
 
-    // ✅ Click Login button
+    // Click Login button
     cy.contains('button', 'Login').click();
 
-    // ✅ Fill out the login form
+    // Fill out the login form
     cy.get('input[placeholder="Email"]').type('test@example.com');
     cy.get('input[placeholder="Password"]').type('password123');
     cy.contains('button', 'Log In').click();
 
-    // ✅ Wait for the login POST
+    // Wait for the login POST
     cy.wait('@loginRequest');
 
-    // ✅ Assert user info saved in localStorage
+    // Assert user info saved in localStorage
     cy.window().then((win) => {
       const user = JSON.parse(win.localStorage.getItem('user') || '{}');
       expect(user.token).to.eq('mock-token-123');
       expect(user.email).to.eq('test@example.com');
     });
 
-    // ✅ Wait for tasks fetch
+    //Wait for tasks fetch
     cy.wait('@getTasks');
 
-    // ✅ Assert login modal closed
+    // Assert login modal closed
     cy.get('[data-testid="login-modal"]').should('not.exist');
 
-    // ✅ Optionally assert we’re on the /tasks page
+    // Optionally assert we’re on the /tasks page
     cy.url().should('include', '/tasks');
   });
 });

@@ -7,7 +7,7 @@ describe('Signup Flow', () => {
   });
 
   it('signs up a user successfully and fetches tasks', () => {
-    // ✅ Intercept GET /tasks after successful signup
+    // Intercept GET /tasks after successful signup
     cy.intercept('GET', '**/tasks', {
       statusCode: 200,
       body: [
@@ -16,7 +16,7 @@ describe('Signup Flow', () => {
       ]
     }).as('getTasks');
 
-    // ✅ Intercept POST /users to mock successful signup
+    // Intercept POST /users to mock successful signup
     cy.intercept('POST', '**/users', {
       statusCode: 201,
       body: {
@@ -30,13 +30,13 @@ describe('Signup Flow', () => {
       }
     }).as('signupRequest');
 
-    // ✅ Step 1: Click the main CTA Sign Up button
+    // Step 1: Click the main CTA Sign Up button
     cy.contains('button', 'Sign Up').click();
 
-    // ✅ Step 2: Confirm the modal is mounted
+    // Step 2: Confirm the modal is mounted
     cy.get('[data-testid="signup-modal"]').should('exist');
 
-    // ✅ Step 3: Fill out and submit the form within the modal
+    // Step 3: Fill out and submit the form within the modal
     cy.get('[data-testid="signup-modal"]').within(() => {
       cy.get('input[placeholder="Username"]').type('newuser');
       cy.get('input[placeholder="Email"]').type('new@example.com');
@@ -44,23 +44,23 @@ describe('Signup Flow', () => {
       cy.contains('button', 'Sign Up').click({ force: true });
     });
 
-    // ✅ Step 4: Wait for the signup request to complete
+    // Step 4: Wait for the signup request to complete
     cy.wait('@signupRequest');
 
-    // ✅ Step 5: Assert user is stored in localStorage
+    // Step 5: Assert user is stored in localStorage
     cy.window().then((win) => {
       const user = JSON.parse(win.localStorage.getItem('user') || '{}');
       expect(user.username).to.eq('newuser');
       expect(user.token).to.eq('mock-signup-token');
     });
 
-    // ✅ Step 6: Wait for the tasks request to simulate redirect
+    // Step 6: Wait for the tasks request to simulate redirect
     cy.wait('@getTasks');
 
-    // ✅ Step 7: Confirm the modal has closed
+    // Step 7: Confirm the modal has closed
     cy.get('[data-testid="signup-modal"]').should('not.exist');
 
-    // ✅ Step 8: Confirm we're on the tasks page
+    // Step 8: Confirm we're on the tasks page
     cy.url().should('include', '/tasks');
   });
 });

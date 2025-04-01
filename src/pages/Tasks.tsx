@@ -13,6 +13,7 @@ import TaskColumn from '../components/tasks/TaskColumn';
 import TaskForm from '../components/tasks/TaskForm';
 import TrashZone from '../components/tasks/TrashZone';
 import TaskItem from '../components/tasks/TaskItem';
+import TaskModal from '../components/tasks/TaskModal'; 
 import { useTasks } from '../hooks/useTasks';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import useTaskSounds from '../hooks/useTaskSounds';
@@ -20,14 +21,31 @@ import { Task } from '../types/interfaces';
 
 const Tasks = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { tasks, addTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks();
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const {
+    tasks,
+    addTask,
+    editTask,
+    updateTaskStatus,
+    removeTask,
+    loading,
+    errors,
+    success,
+  } = useTasks();
 
   const { playPopSound, playAddSound, playSlotSound, playSwooshSound } = useTaskSounds();
+
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
+
+  const openTaskModal = (task: Task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
 
   const tasksByStatus = {
     pending: tasks.filter((task) => task.status === 'pending'),
@@ -43,11 +61,10 @@ const Tasks = () => {
 
   const handleDragEnd = ({ active, over }: any) => {
     setActiveTask(null);
-
     if (!over) return;
 
     if (over.id === 'trash-zone') {
-      playSwooshSound(); // 💨 swoosh for delete
+      playSwooshSound();
       removeTask(Number(active.id));
       return;
     }
@@ -57,31 +74,32 @@ const Tasks = () => {
       const to = over.data.current.column;
 
       if (to === 'completed') {
-        playSlotSound(); // 🎰 fun sound for completed
+        playSlotSound();
       } else {
-        playPopSound(); // 🎯 regular move
+        playPopSound();
       }
 
       setTimeout(() => {
         updateTaskStatus(Number(active.id), to);
-      }, 100); // optional delay for smoother transition
+      }, 100);
     }
   };
 
   const handleAddTask = async (taskData: Task) => {
     await addTask(taskData);
-    playAddSound(); // 🔊 success sound
+    playAddSound();
   };
 
   const handleClearCompleted = () => {
     if (tasksByStatus.completed.length > 0) {
-      playSwooshSound(); // 💨 swoosh for bulk delete
+      playSwooshSound();
     }
-
     tasksByStatus.completed.forEach((task) => {
       removeTask(task.id!);
     });
   };
+
+  console.log('Selected task:', selectedTask);
 
   return (
     <div className="p-6 md:p-12 bg-neutral-light min-h-screen">
@@ -115,15 +133,18 @@ const Tasks = () => {
             >
               <TaskColumn
                 title={
-                  column === 'pending' ? 'To Do' :
-                  column === 'in_progress' ? 'In Progress' :
-                  'Completed'
+                  column === 'pending'
+                    ? 'To Do'
+                    : column === 'in_progress'
+                    ? 'In Progress'
+                    : 'Completed'
                 }
                 tasks={tasksByStatus[column]}
                 column={column}
                 onMoveTask={(id, from, to) => updateTaskStatus(Number(id), to)}
                 isMobile={isMobile}
                 onClearCompleted={column === 'completed' ? handleClearCompleted : undefined}
+                onTaskClick={openTaskModal} // ✅ Add this prop to TaskColumn
               />
             </SortableContext>
           ))}
@@ -142,11 +163,25 @@ const Tasks = () => {
         <DragOverlay>
           {activeTask && (
             <div className="opacity-80 transition-opacity duration-300 ease-in-out">
-              <TaskItem task={activeTask} onMoveTask={() => {}} isMobile={isMobile} />
+              <TaskItem
+                task={activeTask}
+                onMoveTask={() => {}}
+                isMobile={isMobile}
+              />
             </div>
           )}
         </DragOverlay>
       </DndContext>
+
+      {/* Task Modal */}
+      <TaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        task={selectedTask}
+        onUpdate={editTask}
+        onDelete={removeTask}
+        
+      />
     </div>
   );
 };

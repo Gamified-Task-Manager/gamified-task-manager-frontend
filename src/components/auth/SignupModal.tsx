@@ -32,9 +32,11 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }: Props) => {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-      onClick={onClose}
-    >
+  data-testid="signup-modal"
+  className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+  onClick={onClose}
+>
+
       {/* Prevent close when clicking inside */}
       <div
         onClick={(e) => e.stopPropagation()}

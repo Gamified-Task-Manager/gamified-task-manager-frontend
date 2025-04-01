@@ -6,9 +6,10 @@ interface Props {
   task: Task;
   onMoveTask: (taskId: string, fromColumn: Task['status'], toColumn: Task['status']) => void;
   isMobile: boolean;
+  onClick?: (task: Task) => void; // ✅ Optional click handler
 }
 
-const TaskItem = ({ task, onMoveTask, isMobile }: Props) => {
+const TaskItem = ({ task, onMoveTask, isMobile, onClick }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: task.id!.toString(),
     data: {
@@ -36,13 +37,13 @@ const TaskItem = ({ task, onMoveTask, isMobile }: Props) => {
 
   return (
     <div
-  ref={setNodeRef}
-  style={style}
-  {...attributes}
-  {...listeners}
-  className={`transition-all duration-300 ease-in-out opacity-100 hover:scale-[1.01] p-4 rounded-md mb-2 shadow-md ${getTaskColor(task.status)}`}
->
-
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={() => onClick?.(task)} // ✅ Open modal if provided
+      className={`transition-all duration-300 ease-in-out opacity-100 hover:scale-[1.01] p-4 rounded-md mb-2 shadow-md cursor-pointer ${getTaskColor(task.status)}`}
+    >
       <div className="font-semibold">{task.name}</div>
 
       {task.notes && (
@@ -57,7 +58,7 @@ const TaskItem = ({ task, onMoveTask, isMobile }: Props) => {
           value={task.status}
           onChange={(e) =>
             onMoveTask(
-              task.id!.toString(), 
+              task.id!.toString(),
               task.status,
               e.target.value as Task['status']
             )

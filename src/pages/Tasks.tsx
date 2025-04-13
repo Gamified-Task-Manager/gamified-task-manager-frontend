@@ -37,6 +37,9 @@ const Tasks = () => {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<"due_date" | "priority" | "name" | ""(() => {
+    return localStorage.getItem("taskSortBy") as "due_date" | "priority" | "name" | "" || "";
+  })
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -110,14 +113,38 @@ const Tasks = () => {
           Keep track of your progress and get things done!
         </p>
       </div>
-
+  
       {/* Task Form */}
       <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
         <TaskForm onSubmit={handleAddTask} errors={errors} />
       </div>
-
+  
+      {/* Loading State */}
       {loading && <p className="text-center">Loading tasks...</p>}
-
+  
+      {/* Sort Dropdown */}
+      <div className="mb-6 text-center">
+        <label htmlFor="sortBy" className="mr-2 font-medium text-neutral-grey">
+          Sort tasks by:
+        </label>
+        <select
+          id="sortBy"
+          value={sortBy}
+          onChange={(e) => {
+            const selected = e.target.value as "due_date" | "priority" | "name" | "";
+            setSortBy(selected);
+            localStorage.setItem("taskSortBy", selected);
+          }}
+          className="border border-neutral-grey px-3 py-2 rounded-md text-sm"
+        >
+          <option value="">Default</option>
+          <option value="due_date">Due Date</option>
+          <option value="priority">Priority</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+      </div>
+  
+      {/* Drag and Drop Context */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -144,22 +171,22 @@ const Tasks = () => {
                 onMoveTask={(id, from, to) => updateTaskStatus(Number(id), to)}
                 isMobile={isMobile}
                 onClearCompleted={column === 'completed' ? handleClearCompleted : undefined}
-                onTaskClick={openTaskModal} // ✅ Add this prop to TaskColumn
+                onTaskClick={openTaskModal}
               />
             </SortableContext>
           ))}
         </div>
-
+  
         <div className="flex justify-center mt-10">
           <TrashZone />
         </div>
-
+  
         {success && (
           <p className="text-green-600 text-center mb-4 font-medium transition-opacity duration-300">
             {success}
           </p>
         )}
-
+  
         <DragOverlay>
           {activeTask && (
             <div className="opacity-80 transition-opacity duration-300 ease-in-out">
@@ -172,7 +199,7 @@ const Tasks = () => {
           )}
         </DragOverlay>
       </DndContext>
-
+  
       {/* Task Modal */}
       <TaskModal
         isOpen={isModalOpen}
@@ -180,10 +207,10 @@ const Tasks = () => {
         task={selectedTask}
         onUpdate={editTask}
         onDelete={removeTask}
-        
       />
     </div>
   );
+  
 };
 
 export default Tasks;

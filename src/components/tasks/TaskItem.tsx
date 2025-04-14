@@ -6,34 +6,41 @@ interface Props {
   task: Task;
   onMoveTask: (taskId: string, fromColumn: Task['status'], toColumn: Task['status']) => void;
   isMobile: boolean;
-  onClick?: (task: Task) => void; // ✅ Optional click handler
+  onClick?: (task: Task) => void;
 }
 
 const TaskItem = ({ task, onMoveTask, isMobile, onClick }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: task.id!.toString(),
-    data: {
-      column: task.status, 
-    },
+    data: { column: task.status },
   });
-
-  const getTaskColor = (status: Task['status']) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-50';
-      case 'in_progress':
-        return 'bg-blue-50';
-      case 'completed':
-        return 'bg-green-50';
-      default:
-        return 'bg-neutral-light';
-    }
-  };  
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const isLocked = task.completed === true;
+
+  const getPriorityStyle = () => {
+    switch (task.priority) {
+      case 'high':
+        return 'bg-red-100 text-red-700 border-red-300';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      case 'low':
+      default:
+        return 'bg-neutral-light text-neutral-dark border-neutral-grey/40';
+    }
+  };
+
+  const formattedDate = task.due_date
+    ? new Date(task.due_date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : '—';
 
   return (
     <div
@@ -41,18 +48,43 @@ const TaskItem = ({ task, onMoveTask, isMobile, onClick }: Props) => {
       style={style}
       {...attributes}
       {...listeners}
-      onClick={() => onClick?.(task)} // ✅ Open modal if provided
-      className={`transition-all duration-300 ease-in-out opacity-100 hover:scale-[1.01] p-4 rounded-md mb-2 shadow-md cursor-pointer ${getTaskColor(task.status)}`}
+      onClick={() => !isLocked && onClick?.(task)}
+      className={`
+        transition-all duration-300 ease-in-out
+        p-4 rounded-lg shadow-sm mb-3 bg-white border border-neutral-grey/20
+        cursor-pointer hover:shadow-md hover:scale-[1.01]
+        ${isLocked ? 'opacity-60 pointer-events-none' : ''}
+      `}
     >
-      <div className="font-semibold">{task.name}</div>
+      <div className="flex justify-between items-start mb-1">
+        <h3 className="text-base font-medium text-neutral-dark leading-snug">{task.name}</h3>
+        <span className="text-xs text-neutral-grey italic flex-shrink-0">
+          📅 {formattedDate}
+        </span>
+      </div>
 
-      {task.notes && (
-        <div className="text-sm text-neutral-grey mt-1">
-          Notes: {task.notes}
-        </div>
+      {/* Description */}
+      {task.description && (
+        <p className="text-sm text-neutral-dark mt-1">{task.description}</p>
       )}
 
-      {/* Handle mobile dropdown */}
+      {/* Priority Tag */}
+      <div className="mt-2">
+        <span
+          className={`text-xs inline-block px-2 py-0.5 rounded-full border ${getPriorityStyle()}`}
+        >
+          Priority: {task.priority}
+        </span>
+      </div>
+
+      {/* Notes Preview */}
+      {task.notes && (
+        <p className="text-sm text-neutral-grey mt-2 italic line-clamp-2">
+          Notes: {task.notes}
+        </p>
+      )}
+
+      {/* Mobile dropdown */}
       {isMobile && (
         <select
           value={task.status}
@@ -63,7 +95,7 @@ const TaskItem = ({ task, onMoveTask, isMobile, onClick }: Props) => {
               e.target.value as Task['status']
             )
           }
-          className="mt-2 border border-neutral-grey p-1 w-full rounded-md"
+          className="mt-3 border border-neutral-grey px-2 py-1 w-full text-sm rounded-md bg-white focus:outline-none"
         >
           <option value="pending">Pending</option>
           <option value="in_progress">In Progress</option>

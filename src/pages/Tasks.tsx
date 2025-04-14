@@ -8,7 +8,7 @@ import {
   DragStartEvent,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import TaskColumn from '../components/tasks/TaskColumn';
 import TaskForm from '../components/tasks/TaskForm';
 import TrashZone from '../components/tasks/TrashZone';
@@ -19,8 +19,13 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import useTaskSounds from '../hooks/useTaskSounds';
 import { Task } from '../types/interfaces';
 
+// ✅ 1. Initialize sortBy state (before useTasks)
 const Tasks = () => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [sortBy, setSortBy] = useState<"due_date" | "priority" | "name" | "">(() => {
+    return localStorage.getItem("taskSortBy") as "due_date" | "priority" | "name" | "" || "";
+  });
+
+  // ✅ 2. Pass sortBy to useTasks hook
   const {
     tasks,
     addTask,
@@ -30,16 +35,14 @@ const Tasks = () => {
     loading,
     errors,
     success,
-  } = useTasks();
+  } = useTasks(sortBy);
 
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const { playPopSound, playAddSound, playSlotSound, playSwooshSound } = useTaskSounds();
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<"due_date" | "priority" | "name" | ""(() => {
-    return localStorage.getItem("taskSortBy") as "due_date" | "priority" | "name" | "" || "";
-  })
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -50,11 +53,12 @@ const Tasks = () => {
     setIsModalOpen(true);
   };
 
-  const tasksByStatus = {
+  // ✅ Optional: useMemo ensures sorting/filtering recalculates cleanly
+  const tasksByStatus = useMemo(() => ({
     pending: tasks.filter((task) => task.status === 'pending'),
     in_progress: tasks.filter((task) => task.status === 'in_progress'),
     completed: tasks.filter((task) => task.status === 'completed'),
-  };
+  }), [tasks]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const draggedId = event.active.id;
@@ -105,26 +109,21 @@ const Tasks = () => {
   console.log('Selected task:', selectedTask);
 
   return (
-    <div className="p-6 md:p-12 bg-neutral-light min-h-screen">
+    <div className="p-6 md:p-12 bg-neutral-light min-h-screen text-neutral-dark font-sans">
       {/* Title Section */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-serif text-gold text-center">Your Tasks</h1>
-        <p className="text-lg font-sans text-neutral-grey text-center mt-2">
-          Keep track of your progress and get things done!
-        </p>
+      <div className="mb-12 text-center">
+        <h1 className="text-5xl font-serif text-gold mb-2">Your Tasks</h1>
+        <p className="text-lg text-neutral-grey">Keep track of your progress and get things done</p>
       </div>
   
       {/* Task Form */}
-      <div className="max-w-md mx-auto mb-8 bg-white p-4 rounded-lg shadow-md">
+      <div className="max-w-md mx-auto mb-10 bg-white p-6 rounded-2xl shadow-lg border border-neutral-grey/20">
         <TaskForm onSubmit={handleAddTask} errors={errors} />
       </div>
   
-      {/* Loading State */}
-      {loading && <p className="text-center">Loading tasks...</p>}
-  
       {/* Sort Dropdown */}
-      <div className="mb-6 text-center">
-        <label htmlFor="sortBy" className="mr-2 font-medium text-neutral-grey">
+      <div className="mb-10 text-center">
+        <label htmlFor="sortBy" className="mr-3 text-sm font-medium text-neutral-dark">
           Sort tasks by:
         </label>
         <select
@@ -135,7 +134,7 @@ const Tasks = () => {
             setSortBy(selected);
             localStorage.setItem("taskSortBy", selected);
           }}
-          className="border border-neutral-grey px-3 py-2 rounded-md text-sm"
+          className="px-3 py-2 text-sm rounded-md border border-neutral-grey bg-white shadow-sm focus:outline-none"
         >
           <option value="">Default</option>
           <option value="due_date">Due Date</option>
@@ -144,6 +143,11 @@ const Tasks = () => {
         </select>
       </div>
   
+      {/* Loading State */}
+      {loading && (
+        <p className="text-center text-neutral-grey text-sm italic">Loading tasks...</p>
+      )}
+  
       {/* Drag and Drop Context */}
       <DndContext
         sensors={sensors}
@@ -151,7 +155,7 @@ const Tasks = () => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {(['pending', 'in_progress', 'completed'] as Task['status'][]).map((column) => (
             <SortableContext
               key={column}
@@ -177,12 +181,12 @@ const Tasks = () => {
           ))}
         </div>
   
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center mt-12">
           <TrashZone />
         </div>
   
         {success && (
-          <p className="text-green-600 text-center mb-4 font-medium transition-opacity duration-300">
+          <p className="text-green-600 text-center mt-8 font-medium transition-opacity duration-300">
             {success}
           </p>
         )}
@@ -209,8 +213,7 @@ const Tasks = () => {
         onDelete={removeTask}
       />
     </div>
-  );
-  
+  );  
 };
 
 export default Tasks;

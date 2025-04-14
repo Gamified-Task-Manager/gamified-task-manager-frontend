@@ -22,30 +22,33 @@ const TaskModal = ({ isOpen, onClose, task, onUpdate, onDelete }: TaskModalProps
     onClose();
     setIsEditing(false);
   };
-  
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      {/* Overlay that closes the modal on click */}
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      {/* Modal backdrop */}
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
 
+      {/* Modal content */}
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="bg-white max-w-md w-full rounded-xl shadow-xl p-6">
-          <Dialog.Title className="text-xl font-semibold mb-4">
+        <Dialog.Panel className="bg-white max-w-md w-full rounded-2xl border border-neutral-grey/20 shadow-xl p-6 font-sans text-neutral-dark">
+          <Dialog.Title className="text-2xl font-serif text-gold mb-6 text-center">
             {isEditing ? 'Edit Task' : task.name}
           </Dialog.Title>
 
           {isEditing ? (
             <TaskForm initialData={task} onSubmit={handleSubmit} errors={[]} />
           ) : (
-            <div className="space-y-2 text-sm text-neutral-dark">
-              <p><strong>Description:</strong> {task.description || '—'}</p>
-              <p><strong>Due Date:</strong> {task.due_date || '—'}</p>
-              <p><strong>Priority:</strong> {task.priority || '—'}</p>
-              <p><strong>Notes:</strong> {task.notes || '—'}</p>
+            <div className="space-y-3 text-sm">
+              <p><span className="font-semibold">Description:</span> {task.description || '—'}</p>
+              <p><span className="font-semibold">Due Date:</span> {task.due_date || '—'}</p>
+              <p><span className="font-semibold">Priority:</span> {task.priority || '—'}</p>
+              <p><span className="font-semibold">Notes:</span> {task.notes || '—'}</p>
 
-              <div className="mt-4 flex justify-between gap-2">
-                <Button onClick={() => setIsEditing(true)} className="bg-blue-600 text-white">
+              <div className="mt-6 flex justify-between gap-4">
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-gold text-white w-full py-2 hover:bg-yellow-500 transition"
+                >
                   ✏️ Edit
                 </Button>
                 <Button
@@ -53,7 +56,7 @@ const TaskModal = ({ isOpen, onClose, task, onUpdate, onDelete }: TaskModalProps
                     onDelete(task.id!);
                     onClose();
                   }}
-                  className="bg-red-600 text-white"
+                  className="bg-red-600 text-white w-full py-2 hover:bg-red-500 transition"
                 >
                   🗑️ Delete
                 </Button>

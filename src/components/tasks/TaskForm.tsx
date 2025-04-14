@@ -91,101 +91,102 @@ const TaskForm = ({ onSubmit, initialData, errors = [] }: Props) => {
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      {errors.length > 0 && (
-        <div className="text-red-500 text-sm mb-2">
-          {errors.map((error, index) => (
-            <p key={index}>⚠️ {error}</p>
-          ))}
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-4 text-neutral-dark">
+  {errors.length > 0 && (
+    <div className="text-red-500 text-sm space-y-1">
+      {errors.map((error, index) => (
+        <p key={index}>⚠️ {error}</p>
+      ))}
+    </div>
+  )}
 
-      {/* Task Name */}
-      <Input
-        name="name"
-        value={task.name}
-        onChange={handleChange}
-        placeholder="Task Name *"
-      />
+  {/* Task Name */}
+  <Input
+    name="name"
+    value={task.name}
+    onChange={handleChange}
+    placeholder="Task Name *"
+    className="text-sm"
+  />
 
-      {/* Description */}
-      <Input
-        name="description"
-        value={task.description || ''}
-        onChange={handleChange}
-        placeholder="Description"
-        className="mt-2"
-      />
+  {/* Description */}
+  <Input
+    name="description"
+    value={task.description || ''}
+    onChange={handleChange}
+    placeholder="Description"
+    className="text-sm"
+  />
 
-      {/* Due Date */}
-      <div className="mt-2">
-        <label className="text-sm text-neutral-grey">Due Date:</label>
-        <Input
-          type="date"
-          name="due_date"
-          value={task.due_date ? task.due_date.split('T')[0] : ''}
-          onChange={handleChange}
-          min={today}
-          className="mt-1"
-        />
-      </div>
+  {/* Due Date */}
+  <div>
+    <label className="text-sm text-neutral-grey mb-1 block">Due Date:</label>
+    <Input
+      type="date"
+      name="due_date"
+      value={task.due_date ? task.due_date.split('T')[0] : ''}
+      onChange={handleChange}
+      min={today}
+      className="text-sm"
+    />
+  </div>
 
-      {/* Notes */}
-      <Input
-        name="notes"
-        value={task.notes || ''}
-        onChange={handleChange}
-        placeholder="Notes"
-        className="mt-2"
-      />
+  {/* Notes */}
+  <Input
+    name="notes"
+    value={task.notes || ''}
+    onChange={handleChange}
+    placeholder="Notes"
+    className="text-sm"
+  />
 
-      {/* Attach File */}
-      <div className="mt-2">
-        <input
-          type="file"
-          ref={fileInputRef}
-          name="attachment_url"
-          onChange={handleChange}
-          hidden
-        />
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full text-sm py-1 px-3 border border-neutral-grey"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          Attach File
-        </Button>
-        {attachedFileName && (
-          <p className="text-sm text-neutral-grey mt-1">
-            Attached: {attachedFileName}
-          </p>
-        )}
-      </div>
+  {/* Attach File */}
+  <div>
+    <input
+      type="file"
+      ref={fileInputRef}
+      name="attachment_url"
+      onChange={handleChange}
+      hidden
+    />
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full text-sm py-2 px-3 border border-neutral-grey rounded-md"
+      onClick={() => fileInputRef.current?.click()}
+    >
+      Attach File
+    </Button>
+    {attachedFileName && (
+      <p className="text-sm text-neutral-grey mt-1 italic">
+        Attached: {attachedFileName}
+      </p>
+    )}
+  </div>
 
-      {/* Priority Dropdown */}
-      <div className="mt-2">
-        <label className="text-sm text-neutral-grey">Select Priority:</label>
-        <select
-          name="priority"
-          value={task.priority}
-          onChange={handleChange}
-          className="mt-1 border border-neutral-grey px-3 py-2 text-sm w-full rounded-md"
-        >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
+  {/* Priority Dropdown */}
+  <div>
+    <label className="text-sm text-neutral-grey mb-1 block">Select Priority:</label>
+    <select
+      name="priority"
+      value={task.priority}
+      onChange={handleChange}
+      className="border border-neutral-grey px-3 py-2 text-sm w-full rounded-md focus:outline-none focus:ring-1 focus:ring-gold bg-white"
+    >
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
 
-      {/* Submit Button */}
-      <Button
-        type="submit"
-        className="mt-4 w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-500 transition"
-      >
-        {initialData ? 'Update Task' : 'Add Task'}
-      </Button>
-    </form>
+  {/* Submit Button */}
+  <Button
+    type="submit"
+    className="w-full bg-gold text-white font-medium py-2 px-4 rounded-md hover:bg-yellow-500 transition"
+  >
+    {initialData ? 'Update Task' : 'Add Task'}
+  </Button>
+</form>
   );
 };
 

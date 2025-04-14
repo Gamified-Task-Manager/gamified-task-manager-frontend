@@ -9,21 +9,8 @@ interface TaskColumnProps {
   onMoveTask: (taskId: string, fromColumn: Task['status'], toColumn: Task['status']) => void;
   isMobile: boolean;
   onClearCompleted?: () => void;
-  onTaskClick?: (task: Task) => void; // ✅ Add this
+  onTaskClick?: (task: Task) => void;
 }
-
-const columnColor = (column: Task['status']) => {
-  switch (column) {
-    case 'pending':
-      return 'bg-yellow-100';
-    case 'in_progress':
-      return 'bg-blue-100';
-    case 'completed':
-      return 'bg-green-100';
-    default:
-      return 'bg-neutral-deep';
-  }
-};
 
 const TaskColumn = ({
   title,
@@ -32,7 +19,7 @@ const TaskColumn = ({
   onMoveTask,
   isMobile,
   onClearCompleted,
-  onTaskClick, // ✅ Destructure it
+  onTaskClick,
 }: TaskColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column,
@@ -42,21 +29,30 @@ const TaskColumn = ({
   return (
     <div
       ref={setNodeRef}
-      className={`p-4 rounded-lg shadow-md min-h-[200px] transition-all duration-300 ${
-        isOver ? 'ring-2 ring-gold/50 scale-[1.01]' : ''
-      } ${columnColor(column)}`}
+      className={`
+        bg-white
+        rounded-xl
+        border border-neutral-grey/20
+        shadow-sm
+        p-5
+        min-h-[200px]
+        transition-all duration-300
+        ${isOver ? 'ring-2 ring-gold/50 scale-[1.01]' : ''}
+      `}
     >
-      <h2 className="text-xl font-serif text-gold mb-2">{title}</h2>
+      <h2 className="text-xl font-serif text-gold mb-4">{title}</h2>
 
-      {tasks.map((task) => (
-        <TaskItem
-          key={task.id}
-          task={task}
-          onMoveTask={onMoveTask}
-          isMobile={isMobile}
-          onClick={() => onTaskClick?.(task)} // ✅ Call handler if provided
-        />
-      ))}
+      <div className="space-y-3">
+        {tasks.map((task) => (
+          <TaskItem
+            key={task.id}
+            task={task}
+            onMoveTask={onMoveTask}
+            isMobile={isMobile}
+            onClick={() => onTaskClick?.(task)}
+          />
+        ))}
+      </div>
 
       {column === 'completed' && onClearCompleted && tasks.length > 0 && (
         <button
@@ -64,7 +60,7 @@ const TaskColumn = ({
             const confirmed = window.confirm('Are you sure you want to delete all completed tasks?');
             if (confirmed) onClearCompleted();
           }}
-          className="mt-4 text-sm text-red-600 hover:underline"
+          className="mt-6 text-sm text-red-600 hover:underline"
         >
           Clear Completed
         </button>

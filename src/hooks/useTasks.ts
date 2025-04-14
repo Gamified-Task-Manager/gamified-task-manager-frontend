@@ -3,7 +3,7 @@ import { Task } from '../types/interfaces';
 import { createTask, updateTask, deleteTask, updateTaskStatus as apiUpdateTaskStatus } from '../services/taskService';
 import apiClient from '../services/apiClient';
 
-export const useTasks = () => {
+export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -23,10 +23,13 @@ export const useTasks = () => {
   };
 
   useEffect(() => {
+    console.log("Fetching tasks with sortBy:", sortBy);
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get('/tasks');
+        const response = await apiClient.get('/tasks', {
+          params: sortBy ? { sort_by: sortBy } : {},
+        });        
         const fetchedTasks = response.data.data.map((task: any) => ({
           id: Number(task.id),
           ...task.attributes,
@@ -44,7 +47,7 @@ export const useTasks = () => {
     if (user?.token) {
       fetchTasks(); 
     }
-  }, []);
+  }, [sortBy]);
   
 
   useEffect(() => {
@@ -89,8 +92,8 @@ export const useTasks = () => {
       const message = await deleteTask(taskId); // we'll return a message from deleteTask
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
 
-      console.log(message); // ✅ log it
-      setSuccess(message);  // ✅ show it
+      console.log(message); // log it
+      setSuccess(message);  // show it
     } catch (err) {
       handleError(err);
     }

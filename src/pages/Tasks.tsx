@@ -19,13 +19,11 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import useTaskSounds from '../hooks/useTaskSounds';
 import { Task } from '../types/interfaces';
 
-// ✅ 1. Initialize sortBy state (before useTasks)
 const Tasks = () => {
   const [sortBy, setSortBy] = useState<"due_date" | "priority" | "name" | "">(() => {
     return localStorage.getItem("taskSortBy") as "due_date" | "priority" | "name" | "" || "";
   });
 
-  // ✅ 2. Pass sortBy to useTasks hook
   const {
     tasks,
     addTask,
@@ -43,6 +41,7 @@ const Tasks = () => {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Lifted state
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -50,10 +49,10 @@ const Tasks = () => {
 
   const openTaskModal = (task: Task) => {
     setSelectedTask(task);
+    setIsEditing(true);        //Auto-open in edit mode
     setIsModalOpen(true);
   };
 
-  // ✅ Optional: useMemo ensures sorting/filtering recalculates cleanly
   const tasksByStatus = useMemo(() => ({
     pending: tasks.filter((task) => task.status === 'pending'),
     in_progress: tasks.filter((task) => task.status === 'in_progress'),
@@ -106,8 +105,6 @@ const Tasks = () => {
     });
   };
 
-  console.log('Selected task:', selectedTask);
-
   return (
     <div className="p-6 md:p-12 bg-neutral-light min-h-screen text-neutral-dark font-sans">
       {/* Title Section */}
@@ -115,12 +112,12 @@ const Tasks = () => {
         <h1 className="text-5xl font-serif text-gold mb-2">Your Tasks</h1>
         <p className="text-lg text-neutral-grey">Keep track of your progress and get things done</p>
       </div>
-  
+
       {/* Task Form */}
       <div className="max-w-md mx-auto mb-10 bg-white p-6 rounded-2xl shadow-lg border border-neutral-grey/20">
         <TaskForm onSubmit={handleAddTask} errors={errors} />
       </div>
-  
+
       {/* Sort Dropdown */}
       <div className="mb-10 text-center">
         <label htmlFor="sortBy" className="mr-3 text-sm font-medium text-neutral-dark">
@@ -142,12 +139,12 @@ const Tasks = () => {
           <option value="name">Name (A-Z)</option>
         </select>
       </div>
-  
+
       {/* Loading State */}
       {loading && (
         <p className="text-center text-neutral-grey text-sm italic">Loading tasks...</p>
       )}
-  
+
       {/* Drag and Drop Context */}
       <DndContext
         sensors={sensors}
@@ -180,17 +177,17 @@ const Tasks = () => {
             </SortableContext>
           ))}
         </div>
-  
+
         <div className="flex justify-center mt-12">
           <TrashZone />
         </div>
-  
+
         {success && (
           <p className="text-green-600 text-center mt-8 font-medium transition-opacity duration-300">
             {success}
           </p>
         )}
-  
+
         <DragOverlay>
           {activeTask && (
             <div className="opacity-80 transition-opacity duration-300 ease-in-out">
@@ -203,17 +200,22 @@ const Tasks = () => {
           )}
         </DragOverlay>
       </DndContext>
-  
+
       {/* Task Modal */}
       <TaskModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setIsEditing(false); //reset editing mode on close
+        }}
         task={selectedTask}
         onUpdate={editTask}
         onDelete={removeTask}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
       />
     </div>
-  );  
+  );
 };
 
 export default Tasks;

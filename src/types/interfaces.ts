@@ -13,3 +13,10 @@ export interface Task {
   updated_at?: string;
   user_id?: number;
 }
+
+interface User {
+  email: string;
+  username: string;
+  token: string;
+  points: number; 
+}

@@ -51,16 +51,26 @@ export const updateTask = async (taskId: number, taskData: Partial<Task>): Promi
 };
 
 // Update Task Status (for drag and drop)
-export const updateTaskStatus = async (taskId: number, status: Task['status']): Promise<Task> => {
+export const updateTaskStatus = async (
+  taskId: number,
+  status: Task['status']
+): Promise<{ task: Task; newPoints?: number }> => {
   console.log(`Updating task ${taskId} status to:`, status);
   const response = await apiClient.patch(`/tasks/${taskId}`, { task: { status } });
   console.log('Update task status response:', response.data);
+
   const data = response.data.data.attributes;
+  const newPoints = response.data.meta?.new_user_points;
+
   return {
-    ...data,
-    id: Number(response.data.data.id), 
+    task: {
+      ...data,
+      id: Number(response.data.data.id),
+    },
+    newPoints, 
   };
 };
+
 
 // Delete Task
 export const deleteTask = async (taskId: number): Promise<string> => {

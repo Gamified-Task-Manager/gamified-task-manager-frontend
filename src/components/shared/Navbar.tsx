@@ -54,6 +54,13 @@ const Navbar = ({ isOpen, onToggle }: Props) => {
             </div>
           )}
 
+          {/* Coin Counter */}
+        {user && (
+          <div className="text-gold text-md font-semibold flex items-center gap-2 animate-fade-in">
+            💰 <span>{user.points} coins</span>
+          </div>
+        )}
+
           {/* Logout Button */}
           {user && (
             <Button

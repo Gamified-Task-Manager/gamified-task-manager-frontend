@@ -86,22 +86,24 @@ const TaskItem = ({ task, onMoveTask, isMobile, onClick }: Props) => {
 
       {/* Mobile dropdown */}
       {isMobile && (
-        <select
+        <div onClick={(e) => e.stopPropagation()}>
+          <select
           value={task.status}
           onChange={(e) =>
             onMoveTask(
-              task.id!.toString(),
-              task.status,
-              e.target.value as Task['status']
-            )
-          }
+            task.id!.toString(),
+            task.status,
+            e.target.value as Task['status']
+          )
+        }
           className="mt-3 border border-neutral-grey px-2 py-1 w-full text-sm rounded-md bg-white focus:outline-none"
-        >
+          >
           <option value="pending">Pending</option>
           <option value="in_progress">In Progress</option>
           <option value="completed">Completed</option>
         </select>
-      )}
+      </div>
+    )}
     </div>
   );
 };

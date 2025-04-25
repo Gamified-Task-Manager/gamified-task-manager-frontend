@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Task } from '../types/interfaces';
-import { createTask, updateTask, deleteTask, updateTaskStatus as apiUpdateTaskStatus } from '../services/taskService';
+import {
+  createTask,
+  updateTask,
+  deleteTask,
+  updateTaskStatus as apiUpdateTaskStatus,
+} from '../services/taskService';
 import apiClient from '../services/apiClient';
+import { useAuth } from '../contexts/AuthContext';
 
 export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState<string | null>(null);
+  const { updatePoints } = useAuth();
 
   const handleError = (err: any) => {
     console.error('Backend Error:', err);
-    
+
     if (err.response?.data?.errors) {
       // Set multiple backend errors into the state
       setErrors(err.response.data.errors.map((e: any) => e.title));
@@ -29,7 +36,7 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
       try {
         const response = await apiClient.get('/tasks', {
           params: sortBy ? { sort_by: sortBy } : {},
-        });        
+        });
         const fetchedTasks = response.data.data.map((task: any) => ({
           id: Number(task.id),
           ...task.attributes,
@@ -41,26 +48,25 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
         setLoading(false);
       }
     };
-  
+
     const user = JSON.parse(localStorage.getItem('user') || 'null');
-  
+
     if (user?.token) {
-      fetchTasks(); 
+      fetchTasks();
     }
   }, [sortBy]);
-  
 
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
         setSuccess(null);
-      }, 1000); // 👈 1 second
-  
+      }, 1000);
+
       return () => clearTimeout(timer);
     }
-  }, [success]);  
+  }, [success]);
 
-  // ✅ Create Task 
+  // Create Task
   const addTask = async (taskData: Partial<Task>) => {
     setErrors([]);
     try {
@@ -71,7 +77,7 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
     }
   };
 
-  //Update Task 
+  // Update Task
   const editTask = async (taskId: number, taskData: Partial<Task>) => {
     setErrors([]);
     try {
@@ -84,35 +90,48 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
     }
   };
 
-  //  Delete Task
+  // Delete Task
   const removeTask = async (taskId: number) => {
     setErrors([]);
     setSuccess(null);
     try {
-      const message = await deleteTask(taskId); // we'll return a message from deleteTask
+      const message = await deleteTask(taskId);
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-
-      console.log(message); // log it
-      setSuccess(message);  // show it
+      console.log(message);
+      setSuccess(message);
     } catch (err) {
       handleError(err);
     }
   };
 
-  // Update Task Status 
+  // ✅ Update Task Status and Handle Points
   const updateTaskStatus = async (taskId: number, status: Task['status']) => {
     setErrors([]);
     try {
-      const updatedTask = await apiUpdateTaskStatus(taskId, status);
+      const { task, newPoints } = await apiUpdateTaskStatus(taskId, status);
+
       setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === taskId ? { ...task, status } : task
-        )
+        prevTasks.map((t) => (t.id === taskId ? { ...t, status } : t))
       );
+
+      if (newPoints !== undefined) {
+        updatePoints(newPoints); // update context
+      }
+
+      return task;
     } catch (err) {
       handleError(err);
     }
   };
 
-  return { tasks, addTask, editTask, removeTask, updateTaskStatus, loading, errors, success };
+  return {
+    tasks,
+    addTask,
+    editTask,
+    removeTask,
+    updateTaskStatus,
+    loading,
+    errors,
+    success,
+  };
 };

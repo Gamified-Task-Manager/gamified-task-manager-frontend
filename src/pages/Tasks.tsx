@@ -8,60 +8,66 @@ import {
   DragStartEvent,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+
+import CoinPouch from '../components/shared/CoinPouch';
 import TaskColumn from '../components/tasks/TaskColumn';
 import TaskForm from '../components/tasks/TaskForm';
 import TrashZone from '../components/tasks/TrashZone';
 import TaskItem from '../components/tasks/TaskItem';
-import TaskModal from '../components/tasks/TaskModal'; 
+import TaskModal from '../components/tasks/TaskModal';
+
 import { useTasks } from '../hooks/useTasks';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import useTaskSounds from '../hooks/useTaskSounds';
+
 import { Task } from '../types/interfaces';
 
 const Tasks = () => {
-  const [sortBy, setSortBy] = useState<"due_date" | "priority" | "name" | "">(() => {
-    return localStorage.getItem("taskSortBy") as "due_date" | "priority" | "name" | "" || "";
-  });
+  // Context
+  const { user } = useAuth();
 
-  const {
-    tasks,
-    addTask,
-    editTask,
-    updateTaskStatus,
-    removeTask,
-    loading,
-    errors,
-    success,
-  } = useTasks(sortBy);
-
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const { playPopSound, playAddSound, playSlotSound, playSwooshSound } = useTaskSounds();
-
+  // States
+  const [sortBy, setSortBy] = useState<"due_date" | "priority" | "name" | "">(
+    localStorage.getItem("taskSortBy") as "due_date" | "priority" | "name" | "" || ""
+  );
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // Lifted state
+  const [isEditing, setIsEditing] = useState(false);
+  const [totalCoins, setTotalCoins] = useState(user?.points || 0);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  );
+  // Refs
+  const pouchRef = useRef(null);
 
+  // Hooks
+  const { tasks, addTask, editTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks(sortBy);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const { playPopSound, playAddSound, playSlotSound, playSwooshSound } = useTaskSounds();
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  // Derived state
+  const tasksByStatus = useMemo(() => ({
+    pending: tasks.filter(task => task.status === 'pending'),
+    in_progress: tasks.filter(task => task.status === 'in_progress'),
+    completed: tasks.filter(task => task.status === 'completed'),
+  }), [tasks]);
+
+  // Effects
+  useEffect(() => {
+    setTotalCoins(user?.points || 0);
+  }, [user?.points]);
+
+  // Handlers
   const openTaskModal = (task: Task) => {
     setSelectedTask(task);
-    setIsEditing(true);        //Auto-open in edit mode
+    setIsEditing(true);
     setIsModalOpen(true);
   };
 
-  const tasksByStatus = useMemo(() => ({
-    pending: tasks.filter((task) => task.status === 'pending'),
-    in_progress: tasks.filter((task) => task.status === 'in_progress'),
-    completed: tasks.filter((task) => task.status === 'completed'),
-  }), [tasks]);
-
   const handleDragStart = (event: DragStartEvent) => {
-    const draggedId = event.active.id;
-    const draggedTask = tasks.find((task) => task.id!.toString() === draggedId);
+    const draggedTask = tasks.find(task => task.id!.toString() === event.active.id);
     setActiveTask(draggedTask || null);
   };
 
@@ -76,18 +82,11 @@ const Tasks = () => {
     }
 
     if (active.data.current.column !== over.data.current.column) {
-      const from = active.data.current.column;
       const to = over.data.current.column;
 
-      if (to === 'completed') {
-        playSlotSound();
-      } else {
-        playPopSound();
-      }
+      to === 'completed' ? playSlotSound() : playPopSound();
 
-      setTimeout(() => {
-        updateTaskStatus(Number(active.id), to);
-      }, 100);
+      setTimeout(() => updateTaskStatus(Number(active.id), to), 100);
     }
   };
 
@@ -97,16 +96,17 @@ const Tasks = () => {
   };
 
   const handleClearCompleted = () => {
-    if (tasksByStatus.completed.length > 0) {
-      playSwooshSound();
-    }
-    tasksByStatus.completed.forEach((task) => {
-      removeTask(task.id!);
-    });
+    if (tasksByStatus.completed.length) playSwooshSound();
+    tasksByStatus.completed.forEach(task => removeTask(task.id!));
   };
 
   return (
-    <div className="p-6 md:p-12 bg-neutral-light min-h-screen text-neutral-dark font-sans">
+    <div className="p-6 md:p-12 bg-neutral-light min-h-screen text-neutral-dark font-sans relative">
+      {/* Coin Pouch */}
+      <div ref={pouchRef} className="absolute top-6 right-6">
+        <CoinPouch totalCoins={totalCoins} />
+      </div>
+
       {/* Title Section */}
       <div className="mb-12 text-center">
         <h1 className="text-5xl font-serif text-gold mb-2">Your Tasks</h1>
@@ -140,12 +140,12 @@ const Tasks = () => {
         </select>
       </div>
 
-      {/* Loading State */}
+      {/* Loading */}
       {loading && (
         <p className="text-center text-neutral-grey text-sm italic">Loading tasks...</p>
       )}
 
-      {/* Drag and Drop Context */}
+      {/* Drag and Drop */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -153,19 +153,16 @@ const Tasks = () => {
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {(['pending', 'in_progress', 'completed'] as Task['status'][]).map((column) => (
+          {(['pending', 'in_progress', 'completed'] as Task['status'][]).map(column => (
             <SortableContext
               key={column}
-              items={tasksByStatus[column].map((task) => task.id!.toString())}
+              items={tasksByStatus[column].map(task => task.id!.toString())}
               strategy={verticalListSortingStrategy}
             >
               <TaskColumn
                 title={
-                  column === 'pending'
-                    ? 'To Do'
-                    : column === 'in_progress'
-                    ? 'In Progress'
-                    : 'Completed'
+                  column === 'pending' ? 'To Do' :
+                  column === 'in_progress' ? 'In Progress' : 'Completed'
                 }
                 tasks={tasksByStatus[column]}
                 column={column}
@@ -191,11 +188,7 @@ const Tasks = () => {
         <DragOverlay>
           {activeTask && (
             <div className="opacity-80 transition-opacity duration-300 ease-in-out">
-              <TaskItem
-                task={activeTask}
-                onMoveTask={() => {}}
-                isMobile={isMobile}
-              />
+              <TaskItem task={activeTask} onMoveTask={() => {}} isMobile={isMobile} />
             </div>
           )}
         </DragOverlay>
@@ -206,7 +199,7 @@ const Tasks = () => {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setIsEditing(false); //reset editing mode on close
+          setIsEditing(false);
         }}
         task={selectedTask}
         onUpdate={editTask}

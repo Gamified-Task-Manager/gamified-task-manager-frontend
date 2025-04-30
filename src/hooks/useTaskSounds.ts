@@ -1,18 +1,22 @@
-const useTaskSounds = () => {
-  const playSound = (path: string, volume = 0.5) => {
-    const audio = new Audio(path);
-    audio.volume = volume;
-    audio.play().catch((err) => {
-      console.error(`Sound failed to play: ${path}`, err);
-    });
-  };
+import useSound from 'use-sound';
+
+const popSound = "/sounds/pop.wav";
+const addSound = "/sounds/add.mp3";
+const slotSound = "/sounds/coin.mp3";
+const swooshSound = "/sounds/swoosh-low.mp3";
+
+const useTaskSounds = (enabled: boolean = false) => {
+  const [playPopSound] = useSound(popSound, { volume: 0.25, soundEnabled: enabled });
+  const [playAddSound] = useSound(addSound, { volume: 0.25, soundEnabled: enabled });
+  const [playSlotSound] = useSound(slotSound, { volume: 0.25, soundEnabled: enabled });
+  const [playSwooshSound] = useSound(swooshSound, { volume: 0.25, soundEnabled: enabled });
 
   return {
-    playPopSound: () => playSound('/sounds/pop.wav', 0.3),
-    playAddSound: () => playSound('/sounds/pop.wav', 0.5),
-    playSwooshSound: () => playSound('/sounds/swoosh-low.mp3', 0.5),
-    playSlotSound: () => playSound('/sounds/coin.mp3', 0.6),
+    playPopSound,
+    playAddSound,
+    playSlotSound,
+    playSwooshSound
   };
 };
 
-export default useTaskSounds; // ✅ default export
+export default useTaskSounds;

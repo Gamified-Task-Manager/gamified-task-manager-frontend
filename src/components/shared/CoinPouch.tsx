@@ -37,14 +37,15 @@ const CoinPouch = ({ totalCoins }: CoinPouchProps) => {
     <motion.div
       onClick={handleClick}
       animate={controls}
-      className="flex items-center gap-2 cursor-pointer bg-yellow-100 px-4 py-2 rounded-xl shadow-md hover:bg-white transition"
+      className="flex items-center gap-3 cursor-pointer border border-gold bg-transparent px-4 py-2 rounded-lg shadow hover:bg-gold hover:bg-opacity-10 transition"
     >
-      <FontAwesomeIcon icon={faSackDollar} className="text-yellow-500 text-4xl" />
-      <span className="font-semibold text-xl text-neutral-700">
-        <CountUp end={displayCoins} duration={2.5} /> 
+      <FontAwesomeIcon icon={faSackDollar} className="text-gold text-2xl" />
+      <span className="text-lg font-medium text-gold">
+        <CountUp end={displayCoins} duration={2.5} />
       </span>
     </motion.div>
   );
+  
 };
 
 export default CoinPouch;

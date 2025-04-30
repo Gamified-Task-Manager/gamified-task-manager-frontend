@@ -23,15 +23,15 @@ const Navbar = ({ isOpen, onToggle }: Props) => {
       {/* Hamburger Icon */}
       {user && (
         <Button
-          onClick={onToggle}
-          size="icon"
-          variant="secondary"
-          className="fixed top-4 left-4 z-50 bg-neutral-deep text-gold hover:bg-neutral-dark"
-        >
-          {isOpen ? "✕" : "☰"}
-        </Button>
+        onClick={onToggle}
+        size="icon"
+        variant="secondary"
+        className="fixed top-4 left-4 z-50 bg-neutral-deep/50 border border-gold text-gold hover:bg-neutral-deep hover:border-gold transition backdrop-blur-sm text-2xl p-2"
+      >
+        {isOpen ? "✕" : "☰"}
+      </Button>
       )}
-
+  
       {/* Sidebar Overlay */}
       {isOpen && (
         <div
@@ -39,10 +39,10 @@ const Navbar = ({ isOpen, onToggle }: Props) => {
           onClick={onToggle}
         />
       )}
-
+  
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-neutral-deep p-6 transform ${
+        className={`fixed top-0 left-0 h-full w-64 bg-neutral-deep/90 backdrop-blur-sm border-r border-gold p-6 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform z-40 shadow-lg`}
       >
@@ -50,23 +50,23 @@ const Navbar = ({ isOpen, onToggle }: Props) => {
           {/* Welcome Message */}
           {user && (
             <div className="text-gold text-lg font-serif">
-              Welcome, {user.username}!
+              Good to see you, {user.username}!
             </div>
           )}
-
+  
           {/* Coin Counter */}
-        {user && (
-          <div className="text-gold text-md font-semibold flex items-center gap-2 animate-fade-in">
-            💰 <span>{user.points} Task Bucks</span>
-          </div>
-        )}
-
+          {user && (
+            <div className="text-gold text-md font-semibold flex items-center gap-2 animate-fade-in">
+              💰 <span>{user.points} Task Bucks</span>
+            </div>
+          )}
+  
           {/* Logout Button */}
           {user && (
             <Button
               onClick={logout}
               variant="destructive"
-              className="w-full bg-gold text-neutral-deep hover:bg-neutral-grey"
+              className="w-full bg-transparent border border-gold text-gold hover:bg-gold hover:text-neutral-deep transition"
             >
               Logout
             </Button>
@@ -75,6 +75,7 @@ const Navbar = ({ isOpen, onToggle }: Props) => {
       </div>
     </>
   );
+  
 };
 
 export default Navbar;

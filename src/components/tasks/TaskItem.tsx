@@ -44,6 +44,7 @@ const TaskItem = ({ task, onMoveTask, isMobile, onClick }: Props) => {
 
   return (
     <div
+      id={`task-${task.id}`}
       ref={setNodeRef}
       style={style}
       {...attributes}

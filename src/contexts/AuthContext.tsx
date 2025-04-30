@@ -4,7 +4,7 @@ interface User {
   email: string;
   username: string;
   token: string;
-  points: number; 
+  points: number;
 }
 
 interface AuthContextType {
@@ -22,20 +22,26 @@ const AuthContext = createContext<AuthContextType>({
   setIsAuthenticated: () => {},
   login: () => {},
   logout: () => {},
-  updatePoints: () => {}, 
+  updatePoints: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('user');
+    const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+    console.log("Initial user loaded from localStorage:", parsedUser);
+    return parsedUser;
+  });
+  
+
+  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
+      setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     }
   }, []);
@@ -69,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated,
         login,
         logout,
-        updatePoints, 
+        updatePoints,
       }}
     >
       {children}

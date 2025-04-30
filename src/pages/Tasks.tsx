@@ -37,7 +37,7 @@ const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [totalCoins, setTotalCoins] = useState(user?.points || 0);
+  const [totalCoins, setTotalCoins] = useState(0);
 
   const [floatingCoin, setFloatingCoin] = useState<{
     from: { x: number; y: number };
@@ -62,8 +62,15 @@ const Tasks = () => {
 
   // Effects
   useEffect(() => {
-    setTotalCoins(user?.points || 0);
-  }, [user?.points]);
+    console.log("Current user data after login:", user);
+    if (user && typeof user.points === 'number') {
+      setTotalCoins(user.points);
+    }
+  }, [user]); 
+
+  useEffect(() => {
+    console.log("Coin pouch totalCoins state:", totalCoins);
+  }, [totalCoins]);
 
   // Handlers
   const openTaskModal = (task: Task) => {
@@ -85,7 +92,7 @@ const Tasks = () => {
         to: { x: pouchRect.x, y: pouchRect.y },
       });
 
-      setTimeout(() => setFloatingCoin(null), 1200);
+      setTimeout(() => setFloatingCoin(null), 2500);
     }
   };
 
@@ -97,28 +104,32 @@ const Tasks = () => {
   const handleDragEnd = ({ active, over }: any) => {
     setActiveTask(null);
     if (!over) return;
-
+  
     if (over.id === 'trash-zone') {
       playSwooshSound();
       removeTask(Number(active.id));
       return;
     }
-
+  
     if (active.data.current.column !== over.data.current.column) {
       const to = over.data.current.column;
-
+  
       if (to === 'completed') {
         playSlotSound();
-        triggerCoinAnimation(active.id);
+      
+        setTimeout(async () => {
+          await updateTaskStatus(Number(active.id), to);
+          // Short delay to ensure DOM update
+          setTimeout(() => triggerCoinAnimation(active.id), 250);
+        }, 100);
       } else {
         playPopSound();
+        setTimeout(() => updateTaskStatus(Number(active.id), to), 100);
       }
-
-      setTimeout(() => {
-        updateTaskStatus(Number(active.id), to);
-      }, 100);
     }
   };
+  
+  
 
   const handleAddTask = async (taskData: Task) => {
     await addTask(taskData);

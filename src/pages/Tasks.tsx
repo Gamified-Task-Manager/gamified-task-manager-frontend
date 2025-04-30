@@ -17,6 +17,7 @@ import TaskForm from '../components/tasks/TaskForm';
 import TrashZone from '../components/tasks/TrashZone';
 import TaskItem from '../components/tasks/TaskItem';
 import TaskModal from '../components/tasks/TaskModal';
+import FloatingCoin from '../components/ui/FloatingCoin';
 
 import { useTasks } from '../hooks/useTasks';
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -38,8 +39,13 @@ const Tasks = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [totalCoins, setTotalCoins] = useState(user?.points || 0);
 
+  const [floatingCoin, setFloatingCoin] = useState<{
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+  } | null>(null);
+
   // Refs
-  const pouchRef = useRef(null);
+  const pouchRef = useRef<HTMLDivElement>(null);
 
   // Hooks
   const { tasks, addTask, editTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks(sortBy);
@@ -66,6 +72,23 @@ const Tasks = () => {
     setIsModalOpen(true);
   };
 
+  const triggerCoinAnimation = (taskId: string) => {
+    const taskElement = document.getElementById(`task-${taskId}`);
+    const pouchElement = pouchRef.current;
+
+    if (taskElement && pouchElement) {
+      const taskRect = taskElement.getBoundingClientRect();
+      const pouchRect = pouchElement.getBoundingClientRect();
+
+      setFloatingCoin({
+        from: { x: taskRect.x, y: taskRect.y },
+        to: { x: pouchRect.x, y: pouchRect.y },
+      });
+
+      setTimeout(() => setFloatingCoin(null), 1200);
+    }
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const draggedTask = tasks.find(task => task.id!.toString() === event.active.id);
     setActiveTask(draggedTask || null);
@@ -84,9 +107,16 @@ const Tasks = () => {
     if (active.data.current.column !== over.data.current.column) {
       const to = over.data.current.column;
 
-      to === 'completed' ? playSlotSound() : playPopSound();
+      if (to === 'completed') {
+        playSlotSound();
+        triggerCoinAnimation(active.id);
+      } else {
+        playPopSound();
+      }
 
-      setTimeout(() => updateTaskStatus(Number(active.id), to), 100);
+      setTimeout(() => {
+        updateTaskStatus(Number(active.id), to);
+      }, 100);
     }
   };
 
@@ -110,7 +140,9 @@ const Tasks = () => {
       {/* Title Section */}
       <div className="mb-12 text-center">
         <h1 className="text-5xl font-serif text-gold mb-2">Your Tasks</h1>
-        <p className="text-lg text-neutral-grey">Keep track of your progress and get things done</p>
+        <p className="text-lg text-neutral-grey">
+          Keep track of your progress and get things done
+        </p>
       </div>
 
       {/* Task Form */}
@@ -140,12 +172,14 @@ const Tasks = () => {
         </select>
       </div>
 
-      {/* Loading */}
+      {/* Loading State */}
       {loading && (
-        <p className="text-center text-neutral-grey text-sm italic">Loading tasks...</p>
+        <p className="text-center text-neutral-grey text-sm italic">
+          Loading tasks...
+        </p>
       )}
 
-      {/* Drag and Drop */}
+      {/* Drag and Drop Context */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -193,6 +227,15 @@ const Tasks = () => {
           )}
         </DragOverlay>
       </DndContext>
+
+      {/* Floating Coin Animation */}
+      {floatingCoin && (
+        <FloatingCoin
+          from={floatingCoin.from}
+          to={floatingCoin.to}
+          onComplete={() => setFloatingCoin(null)}
+        />
+      )}
 
       {/* Task Modal */}
       <TaskModal

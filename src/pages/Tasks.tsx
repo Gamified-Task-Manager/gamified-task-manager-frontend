@@ -9,8 +9,15 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useState, useEffect, useMemo, useRef } from 'react';
+
+// ─────────────────────────────
+// Context
+// ─────────────────────────────
 import { useAuth } from '../contexts/AuthContext';
 
+// ─────────────────────────────
+// Components
+// ─────────────────────────────
 import CoinPouch from '../components/shared/CoinPouch';
 import TaskColumn from '../components/tasks/TaskColumn';
 import TaskForm from '../components/tasks/TaskForm';
@@ -19,17 +26,30 @@ import TaskItem from '../components/tasks/TaskItem';
 import TaskModal from '../components/tasks/TaskModal';
 import FloatingCoin from '../components/ui/FloatingCoin';
 
+// ─────────────────────────────
+// Custom Hooks
+// ─────────────────────────────
 import { useTasks } from '../hooks/useTasks';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import useTaskSounds from '../hooks/useTaskSounds';
 
+// ─────────────────────────────
+// Types
+// ─────────────────────────────
 import { Task } from '../types/interfaces';
 
+
+// ─────────────────────────────
+// Component
+// ─────────────────────────────
 const Tasks = () => {
-  // Context
+  // Auth
   const { user } = useAuth();
 
-  // States
+  // Refs
+  const pouchRef = useRef<HTMLDivElement>(null);
+
+  // State
   const [sortBy, setSortBy] = useState<"due_date" | "priority" | "name" | "">(
     localStorage.getItem("taskSortBy") as "due_date" | "priority" | "name" | "" || ""
   );
@@ -38,18 +58,14 @@ const Tasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [totalCoins, setTotalCoins] = useState(0);
-
   const [floatingCoin, setFloatingCoin] = useState<{
     from: { x: number; y: number };
     to: { x: number; y: number };
   } | null>(null);
   const [soundOn, setSoundOn] = useState<boolean>(() => {
     const savedPreference = localStorage.getItem('soundOn');
-    return savedPreference ? JSON.parse(savedPreference) : false; // default OFF
+    return savedPreference ? JSON.parse(savedPreference) : false;
   });
-
-  // Refs
-  const pouchRef = useRef<HTMLDivElement>(null);
 
   // Hooks
   const { tasks, addTask, editTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks(sortBy);
@@ -68,9 +84,9 @@ const Tasks = () => {
   useEffect(() => {
     console.log("Current user data after login:", user);
     if (user && typeof user.points === 'number') {
-      setTotalCoins(user.points);
+      setTotalCoins(user.points || 0);
     }
-  }, [user]); 
+  }, [user]);
 
   useEffect(() => {
     console.log("Coin pouch totalCoins state:", totalCoins);
@@ -112,19 +128,18 @@ const Tasks = () => {
   const handleDragEnd = ({ active, over }: any) => {
     setActiveTask(null);
     if (!over) return;
-  
+
     if (over.id === 'trash-zone') {
       playSwooshSound();
       removeTask(Number(active.id));
       return;
     }
-  
+
     if (active.data.current.column !== over.data.current.column) {
       const to = over.data.current.column;
-  
+
       if (to === 'completed') {
         playSlotSound();
-      
         setTimeout(async () => {
           await updateTaskStatus(Number(active.id), to);
           setTimeout(() => triggerCoinAnimation(active.id), 250);
@@ -145,7 +160,6 @@ const Tasks = () => {
     if (tasksByStatus.completed.length) playSwooshSound();
     tasksByStatus.completed.forEach(task => removeTask(task.id!));
   };
-
   
   return (
     <div className="p-6 md:p-12 bg-neutral-light min-h-screen text-neutral-dark font-sans relative">

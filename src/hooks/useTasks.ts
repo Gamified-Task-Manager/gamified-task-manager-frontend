@@ -8,26 +8,36 @@ import {
 } from '../services/taskService';
 import apiClient from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
+import { isAxiosError } from 'axios';
+
 
 export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState<string | null>(null);
-  const { updatePoints } = useAuth();
+  const { updatePoints, user } = useAuth();
 
-  const handleError = (err: any) => {
+  const handleError = (err: unknown) => {
     console.error('Backend Error:', err);
-
-    if (err.response?.data?.errors) {
-      // Set multiple backend errors into the state
-      setErrors(err.response.data.errors.map((e: any) => e.title));
-    } else if (err.message) {
+  
+    if (isAxiosError(err)) {
+      const axiosErr = err;
+  
+      if (axiosErr.response?.data?.errors) {
+        setErrors(axiosErr.response.data.errors.map((e: any) => e.title));
+      } else if (axiosErr.message) {
+        setErrors([axiosErr.message]);
+      } else {
+        setErrors(['An unknown error occurred.']);
+      }
+    } else if (err instanceof Error) {
       setErrors([err.message]);
     } else {
       setErrors(['An unknown error occurred.']);
     }
   };
+  
 
   useEffect(() => {
     console.log("Fetching tasks with sortBy:", sortBy);
@@ -48,13 +58,12 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
         setLoading(false);
       }
     };
-
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-
+  
     if (user?.token) {
       fetchTasks();
     }
-  }, [sortBy]);
+  }, [sortBy, user]);
+  
 
   useEffect(() => {
     if (success) {
@@ -104,7 +113,7 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
     }
   };
 
-  // ✅ Update Task Status and Handle Points
+  // Update Task Status and Handle Points
   const updateTaskStatus = async (taskId: number, status: Task['status']) => {
     setErrors([]);
     try {

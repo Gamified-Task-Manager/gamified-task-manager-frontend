@@ -29,6 +29,7 @@ const TaskColumn = ({
   return (
     <div
       ref={setNodeRef}
+      data-testid={`${column}-column`}
       className={`
         bg-white
         rounded-xl

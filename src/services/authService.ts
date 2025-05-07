@@ -7,5 +7,5 @@ export const login = async (email: string, password: string) => {
 
 export const signup = async (username: string, email: string, password: string) => {
   const response = await apiClient.post('/users', { user: { username, email, password } });
-  return response.data; // Similar structure as login
+  return response.data; 
 };

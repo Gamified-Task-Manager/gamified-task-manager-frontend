@@ -63,17 +63,8 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
       fetchTasks();
     }
   }, [sortBy, user]);
-  
 
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
-        setSuccess(null);
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
+  const clearSuccess = () => setSuccess(null);
 
   // Create Task
   const addTask = async (taskData: Partial<Task>) => {
@@ -102,7 +93,6 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
   // Delete Task
   const removeTask = async (taskId: number) => {
     setErrors([]);
-    setSuccess(null);
     try {
       const message = await deleteTask(taskId);
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
@@ -142,5 +132,6 @@ export const useTasks = (sortBy?: "due_date" | "priority" | "name" | "") => {
     loading,
     errors,
     success,
+    clearSuccess,
   };
 };

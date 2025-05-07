@@ -68,7 +68,7 @@ const Tasks = () => {
   });
 
   // Hooks
-  const { tasks, addTask, editTask, updateTaskStatus, removeTask, loading, errors, success } = useTasks(sortBy);
+  const { tasks, addTask, editTask, updateTaskStatus, removeTask, loading, errors, success, clearSuccess } = useTasks(sortBy);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { playPopSound, playAddSound, playSlotSound, playSwooshSound } = useTaskSounds(soundOn);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -95,6 +95,16 @@ const Tasks = () => {
   useEffect(() => {
     localStorage.setItem('soundOn', JSON.stringify(soundOn));
   }, [soundOn]);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        clearSuccess();
+      }, 2000); 
+  
+      return () => clearTimeout(timer); 
+    }
+  }, [success, clearSuccess]);  
 
   // Handlers
   const openTaskModal = (task: Task) => {
@@ -299,6 +309,7 @@ const Tasks = () => {
         onClose={() => {
           setIsModalOpen(false);
           setIsEditing(false);
+          clearSuccess();
         }}
         task={selectedTask}
         onUpdate={editTask}

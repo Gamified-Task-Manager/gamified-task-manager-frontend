@@ -13,10 +13,61 @@ export interface Task {
   updated_at?: string;
   user_id?: number;
 }
+// types/interfaces.ts
 
-interface User {
+// ─────────────────────────────────────
+// User Interface
+// ─────────────────────────────────────
+export interface User {
   email: string;
   username: string;
   token: string;
-  points: number; 
+  points: number;
+}
+
+// ─────────────────────────────────────
+// Reward Interfaces
+// ─────────────────────────────────────
+export interface RewardAttributes {
+  name: string;
+  description: string;
+  points_required: number;
+  reward_type: 'game' | 'theme' | 'avatar';
+  active: boolean;
+  image_url?: string;
+}
+
+// JSON:API-style response for Reward
+export interface RewardJsonApi {
+  id: string;
+  type: 'reward';
+  attributes: RewardAttributes;
+  relationships?: {
+    [key: string]: any; // Optional for now, unless you know specific structure
+  };
+}
+
+// ─────────────────────────────────────
+// UserReward Interfaces
+// ─────────────────────────────────────
+export interface UserRewardAttributes {
+  id: number;
+  reward_id: number; // Add this line
+  purchased: boolean;
+  unlocked: boolean;
+}
+
+// JSON:API-style response for UserReward
+export interface UserRewardJsonApi {
+  id: string;
+  type: 'user_reward';
+  attributes: UserRewardAttributes;
+  relationships?: {
+    user?: {
+      data: { id: string; type: 'user' };
+    };
+    reward?: {
+      data: { id: string; type: 'reward' };
+    };
+  };
 }

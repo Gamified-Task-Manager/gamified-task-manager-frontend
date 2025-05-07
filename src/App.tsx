@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Tasks from './pages/Tasks';
+import Rewards from './pages/Rewards'
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/shared/Navbar';
 import './index.css';
@@ -51,13 +52,22 @@ function AppRoutes() {
       >
         <Routes>
           <Route path="/" element={<Home />} />
+
           {isAuthenticated ? (
-            <Route path="/tasks" element={<Tasks />} />
+          <>
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/rewards" element={<Rewards />} />
+          </>
           ) : (
-            <Route path="/tasks" element={<Navigate to="/" />} />
-          )}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+          <>
+        <Route path="/tasks" element={<Navigate to="/" />} />
+        <Route path="/rewards" element={<Navigate to="/" />} />
+          </>
+      )}
+
+  <Route path="*" element={<Navigate to="/" />} />
+</Routes>
+
       </div>
     </>
   );

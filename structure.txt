@@ -1,0 +1,129 @@
+.
+├── README.md
+├── components.json
+├── cypress
+│   ├── downloads
+│   │   └── downloads.html
+│   ├── e2e
+│   │   ├── home.cy.ts
+│   │   ├── login.cy.ts
+│   │   ├── signup.cy.ts
+│   │   ├── spec.cy.ts
+│   │   └── tasks.cy.ts
+│   ├── fixtures
+│   │   └── example.json
+│   └── support
+│       ├── commands.ts
+│       └── e2e.ts
+├── cypress.config.ts
+├── dist
+│   ├── assets
+│   │   ├── index-Cp_ALs9j.css
+│   │   └── index-DwsL1rZJ.js
+│   ├── index.html
+│   ├── models
+│   ├── sounds
+│   │   ├── coin.mp3
+│   │   ├── pop.wav
+│   │   ├── retro-accomplished.wav
+│   │   ├── retro-cheerful.wav
+│   │   ├── song1-retro.wav
+│   │   ├── song2-retro.wav
+│   │   ├── swoosh-low.mp3
+│   │   └── winning-video-game-5.wav
+│   └── vite.svg
+├── eslint.config.js
+├── file-structure.txt
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.cjs
+├── public
+│   ├── models
+│   ├── sounds
+│   │   ├── coin.mp3
+│   │   ├── pop.wav
+│   │   ├── retro-accomplished.wav
+│   │   ├── retro-cheerful.wav
+│   │   ├── song1-retro.wav
+│   │   ├── song2-retro.wav
+│   │   ├── swoosh-low.mp3
+│   │   └── winning-video-game-5.wav
+│   └── vite.svg
+├── src
+│   ├── App.css
+│   ├── App.tsx
+│   ├── assets
+│   │   └── react.svg
+│   ├── components
+│   │   ├── auth
+│   │   │   ├── LoginModal.tsx
+│   │   │   └── SignupModal.tsx
+│   │   ├── games
+│   │   │   ├── Game.tsx
+│   │   │   └── GameModal.tsx
+│   │   ├── rewards
+│   │   │   ├── RewardItem.tsx
+│   │   │   ├── RewardList.tsx
+│   │   │   └── RewardPurchase.tsx
+│   │   ├── shared
+│   │   │   ├── CoinPouch.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   └── ProtectedRoute.tsx
+│   │   ├── tasks
+│   │   │   ├── TaskColumn.tsx
+│   │   │   ├── TaskForm.tsx
+│   │   │   ├── TaskItem.tsx
+│   │   │   ├── TaskModal.tsx
+│   │   │   └── TrashZone.tsx
+│   │   ├── ui
+│   │   │   ├── FloatingCoin.tsx
+│   │   │   ├── button.tsx
+│   │   │   └── input.tsx
+│   │   └── user
+│   │       ├── AvatarSelector.tsx
+│   │       ├── ThemeSelector.tsx
+│   │       └── UserProfile.tsx
+│   ├── contexts
+│   │   ├── AuthContext.tsx
+│   │   └── ThemeContext.tsx
+│   ├── hooks
+│   │   ├── useAuth.ts
+│   │   ├── useAvatars.ts
+│   │   ├── useMediaQuery.ts
+│   │   ├── useRewards.ts
+│   │   ├── useTaskSounds.ts
+│   │   ├── useTasks.ts
+│   │   └── useThemes.ts
+│   ├── index.css
+│   ├── lib
+│   │   └── utils.ts
+│   ├── main.tsx
+│   ├── pages
+│   │   ├── Home.tsx
+│   │   ├── Profile.tsx
+│   │   ├── Rewards.tsx
+│   │   └── Tasks.tsx
+│   ├── services
+│   │   ├── apiClient.ts
+│   │   ├── authService.ts
+│   │   ├── avatarService.ts
+│   │   ├── rewardService.ts
+│   │   ├── taskService.ts
+│   │   └── themeService.ts
+│   ├── styles
+│   │   ├── animations.ts
+│   │   ├── globals.css
+│   │   └── themeStyles.ts
+│   ├── types
+│   │   └── interfaces.ts
+│   ├── utils
+│   │   └── authHelpers.ts
+│   └── vite-env.d.ts
+├── structure.txt
+├── tailwind.config.js
+├── tsconfig.json
+├── tsconfig.tsbuildinfo
+└── vite.config.ts
+
+31 directories, 96 files

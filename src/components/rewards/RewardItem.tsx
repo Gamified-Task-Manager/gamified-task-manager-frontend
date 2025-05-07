@@ -1,28 +1,54 @@
-interface RewardItemProps {
-  reward: any // use your Reward interface if typed
-  purchased: boolean
+import { purchaseReward } from '../../services/rewardService';
+import { useAuth } from '../../contexts/AuthContext';
+import { useState } from 'react';
+import { RewardJsonApi } from '../../types/interfaces';
+
+interface Props {
+  reward: RewardJsonApi;
+  purchased: boolean;
 }
 
-const RewardItem = ({ reward, purchased }: RewardItemProps) => {
-  const { name, description, image_url, points_required } = reward.attributes
+const RewardItem = ({ reward, purchased }: Props) => {
+  const { user, updatePoints} = useAuth();
+  const [isPurchased, setIsPurchased] = useState(purchased);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePurchase = async () => {
+    if (!user || isPurchased || user.points < reward.attributes.points_required) return;
+  
+    try {
+      setIsLoading(true);
+      await purchaseReward(Number(reward.id));
+      setIsPurchased(true);
+      updatePoints(user.points - reward.attributes.points_required);
+    } catch (err) {
+      console.error('Purchase failed', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div
-      className={`rounded-lg shadow p-4 transition ${
-        purchased ? 'opacity-50 pointer-events-none' : 'hover:shadow-lg'
+      className={`rounded-lg p-4 border transition shadow ${
+        isPurchased ? 'opacity-50' : 'hover:shadow-md'
       }`}
     >
-      <img
-        src={image_url || '/placeholder.png'}
-        alt={name}
-        className="w-full h-32 object-contain mb-3"
-      />
-      <h3 className="text-lg font-semibold">{name}</h3>
-      <p className="text-sm text-neutral-600">{description}</p>
-      <p className="mt-2 font-medium">{points_required} coins</p>
-      {purchased && <p className="text-xs text-green-600 mt-1">Purchased</p>}
-    </div>
-  )
-}
+      <h3 className="text-lg font-bold">{reward.attributes.name}</h3>
+      <p className="text-sm text-neutral-grey">{reward.attributes.description}</p>
+      <p className="text-sm mt-2">Cost: {reward.attributes.points_required} coins</p>
 
-export default RewardItem
+      {!isPurchased && (
+        <button
+          onClick={handlePurchase}
+          disabled={isLoading || isPurchased}
+          className="mt-3 bg-gold text-white px-3 py-1 rounded hover:bg-yellow-600"
+        >
+          {isLoading ? 'Purchasing...' : 'Purchase'}
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default RewardItem;

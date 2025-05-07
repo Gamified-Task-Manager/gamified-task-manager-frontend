@@ -51,10 +51,10 @@ export interface RewardJsonApi {
 // UserReward Interfaces
 // ─────────────────────────────────────
 export interface UserRewardAttributes {
+  id: number;
+  reward_id: number; // Add this line
   purchased: boolean;
   unlocked: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 // JSON:API-style response for UserReward

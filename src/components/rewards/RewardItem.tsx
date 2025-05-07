@@ -1,18 +1,23 @@
-import { purchaseReward } from '../../services/rewardService';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RewardJsonApi } from '../../types/interfaces';
+import { purchaseReward } from '../../services/rewardService';
 
 interface Props {
   reward: RewardJsonApi;
   purchased: boolean;
-  onPurchaseSuccess?: () => void; // ✅ new prop
+  refreshRewards: () => void;
 }
 
-const RewardItem = ({ reward, purchased, onPurchaseSuccess }: Props) => {
+const RewardItem = ({ reward, purchased, refreshRewards }: Props) => {
   const { user, updateUser } = useAuth();
   const [isPurchased, setIsPurchased] = useState(purchased);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Keep purchased state in sync with parent
+  useEffect(() => {
+    setIsPurchased(purchased);
+  }, [purchased]);
 
   const handlePurchase = async () => {
     if (!user || isPurchased || user.points < reward.attributes.points_required) return;
@@ -20,11 +25,10 @@ const RewardItem = ({ reward, purchased, onPurchaseSuccess }: Props) => {
     try {
       setIsLoading(true);
       await purchaseReward(Number(reward.id));
-      setIsPurchased(true);
-      await updateUser(); // ✅ refresh user data
-      onPurchaseSuccess?.(); // ✅ refresh reward data
+      await updateUser();         // refresh user points
+      await refreshRewards();     // refresh purchased status
     } catch (err) {
-      console.error('Purchase failed', err);
+      console.error('❌ Purchase failed', err);
     } finally {
       setIsLoading(false);
     }
@@ -32,19 +36,30 @@ const RewardItem = ({ reward, purchased, onPurchaseSuccess }: Props) => {
 
   return (
     <div
-      className={`rounded-lg p-4 border transition shadow ${
-        isPurchased ? 'opacity-50' : 'hover:shadow-md'
+      className={`relative rounded-xl p-4 border transition duration-300 shadow-md ${
+        isPurchased
+          ? 'bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed'
+          : 'bg-white text-neutral-dark hover:shadow-lg'
       }`}
     >
-      <h3 className="text-lg font-bold">{reward.attributes.name}</h3>
-      <p className="text-sm text-neutral-grey">{reward.attributes.description}</p>
-      <p className="text-sm mt-2">Cost: {reward.attributes.points_required} coins</p>
+      {/* "Purchased" Banner */}
+      {isPurchased && (
+        <div className="absolute top-2 right-2 bg-gold text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
+          🎉 Purchased
+        </div>
+      )}
 
+      {/* Reward Info */}
+      <h3 className="text-lg font-bold mb-1">{reward.attributes.name}</h3>
+      <p className="text-sm mb-2">{reward.attributes.description}</p>
+      <p className="text-sm font-medium">Cost: {reward.attributes.points_required} coins</p>
+
+      {/*  Only show button if not purchased */}
       {!isPurchased && (
         <button
           onClick={handlePurchase}
-          disabled={isLoading || isPurchased}
-          className="mt-3 bg-gold text-white px-3 py-1 rounded hover:bg-yellow-600"
+          disabled={isLoading}
+          className="mt-4 w-full bg-gold text-white py-2 px-4 rounded hover:bg-yellow-600 disabled:opacity-60 disabled:cursor-wait"
         >
           {isLoading ? 'Purchasing...' : 'Purchase'}
         </button>

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { getCurrentUser } from '../services/authService'; 
+import { getCurrentUser } from '../services/authService'; // 🔄 Update this path if needed
 
 interface User {
   email: string;
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUser = async () => {
     try {
       if (!user?.token) return;
-      const updated = await getCurrentUser(user.token); 
+      const updated = await getCurrentUser(user.token); // Assumes auth header required
       const updatedUser = { ...updated, token: user.token }; // preserve token
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));

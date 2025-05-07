@@ -6,21 +6,23 @@ import { RewardJsonApi } from '../../types/interfaces';
 interface Props {
   reward: RewardJsonApi;
   purchased: boolean;
+  onPurchaseSuccess?: () => void; // ✅ new prop
 }
 
-const RewardItem = ({ reward, purchased }: Props) => {
-  const { user, updatePoints} = useAuth();
+const RewardItem = ({ reward, purchased, onPurchaseSuccess }: Props) => {
+  const { user, updateUser } = useAuth();
   const [isPurchased, setIsPurchased] = useState(purchased);
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePurchase = async () => {
     if (!user || isPurchased || user.points < reward.attributes.points_required) return;
-  
+
     try {
       setIsLoading(true);
       await purchaseReward(Number(reward.id));
       setIsPurchased(true);
-      updatePoints(user.points - reward.attributes.points_required);
+      await updateUser(); // ✅ refresh user data
+      onPurchaseSuccess?.(); // ✅ refresh reward data
     } catch (err) {
       console.error('Purchase failed', err);
     } finally {

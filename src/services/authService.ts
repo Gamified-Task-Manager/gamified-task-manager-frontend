@@ -11,7 +11,7 @@ export const signup = async (username: string, email: string, password: string) 
 };
 
 export const getCurrentUser = async (token: string) => {
-  const response = await apiClient.get('/api/v1/profile', {
+  const response = await apiClient.get('/profile', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
